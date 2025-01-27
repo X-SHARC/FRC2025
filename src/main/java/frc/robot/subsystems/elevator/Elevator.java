@@ -23,11 +23,13 @@ public class Elevator extends SubsystemBase {
   public Elevator(ElevatorIO io) {
     this.io = io;
     this.inputs = new ElevatorIOInputsAutoLogged();
-    this.controller = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
+    this.controller =
+        new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
     this.disconnectedAlerts = new Alert[2];
     for (int i = 0; i < disconnectedAlerts.length; i++) {
-      disconnectedAlerts[i] = new Alert(
-          "Elevator motor " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
+      disconnectedAlerts[i] =
+          new Alert(
+              "Elevator motor " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
 
     this.controller.setTolerance(ElevatorConstants.kTolerance);

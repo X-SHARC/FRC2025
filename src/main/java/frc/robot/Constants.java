@@ -24,10 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class defines the runtime mode used by AdvantageKit. The mode is always
- * "real" when running
- * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics
- * sim) and "replay"
+ * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
+ * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
  * (log replay from a file).
  */
 public final class Constants {
@@ -47,8 +45,9 @@ public final class Constants {
 
   public final class GeneratorConstants {
     public static final double centerToPoleDist = 1.0;
-    public static final PathConstraints constraints = new PathConstraints(
-        4.98, 4.5, Units.degreesToRadians(360), Units.degreesToRadians(720), 12);
+    public static final PathConstraints constraints =
+        new PathConstraints(
+            4.98, 4.5, Units.degreesToRadians(360), Units.degreesToRadians(720), 12);
   }
 
   public static final class FieldConstants {
