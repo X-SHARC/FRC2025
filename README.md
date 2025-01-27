@@ -5,7 +5,8 @@ To run the simulation in AdvantageScope, follow these steps:
 1. **Open AdvantageScope**.
 2. **Create a new 3D field**.
 3. **Add Sharc Robot to Assets**:
-   - Download and add the SHARC robot model to the `Assets` folder in AdvantageScope.
+   - Download the SHARC robot model from [this link](https://drive.google.com/file/d/1VGRzSVTl8jghPXwf17nf49obtcfHuRz9/view?usp=sharing).
+   - Add the downloaded file to the `Assets` folder in AdvantageScope.
 4. **Select the robot configuration**:
    - Choose the `SHARC` robot in the configuration settings.
 5. **Add Odometry Data to 2D Poses**:
