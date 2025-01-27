@@ -10,7 +10,7 @@ To run the simulation in AdvantageScope, follow these steps:
 4. **Select the robot configuration**:
    - Choose the `SHARC` robot in the configuration settings.
 5. **Add Odometry Data to 2D Poses**:
-   - Drag `AdvantageKit/RealOutputs/Odometry/Robot` to the 2D Poses section and select the `Component (Robot)`.
+   - Drag `AdvantageKit/RealOutputs/Odometry/Robot` to the 2D Poses section and select the `Robot`.
 6. **Add Elevator Pose (First Pose) to 3D Poses**:
    - Drag `AdvantageKit/RealOutputs/Elevator/Pose/FirstPose3D` to the 3D Poses section and select the `Component (Robot)`.
 7. **Add Elevator Pose (Carriage Pose) to 3D Poses**:
