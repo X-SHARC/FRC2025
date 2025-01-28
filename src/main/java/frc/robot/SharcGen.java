@@ -2,45 +2,45 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.GeneratorConstants;
 import frc.robot.commands.ElevatorSet;
 import frc.robot.state.FieldState;
 import frc.robot.state.RobotState;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Enums.Height;
 import frc.robot.util.Enums.OperationMode;
 import frc.robot.util.Enums.PoleMaxHeight;
 import frc.robot.util.Enums.Position;
 import frc.robot.util.Enums.Side;
 import frc.robot.util.Enums.Source;
+
+import java.util.HashMap;
 import java.util.Map;
 import org.littletonrobotics.junction.Logger;
 
 public class SharcGen {
-  private Map<Source, Pose2d> sourcePoses;
-  private Map<Side, Pose2d> sidePoses;
+  private Map<Source, Pose2d> sourcePoses = new HashMap<>();
+  private Map<Side, Pose2d> sidePoses = new HashMap<>();
 
   public SharcGen() {
     initializeMaps();
   }
 
   private void initializeMaps() {
-    boolean isRedAlliance =
-        DriverStation.getAlliance().isPresent()
-            && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
-    sourcePoses =
-        isRedAlliance
-            ? Constants.FieldConstants.sourcePosesRed
-            : Constants.FieldConstants.sourcePosesBlue;
-    sidePoses =
-        isRedAlliance
-            ? Constants.FieldConstants.sidePosesRed
-            : Constants.FieldConstants.sidePosesBlue;
+
+    for (int i = 0; i < FieldConstants.sourcePoses.length; i++) {
+      sourcePoses.put(Source.fromValue(i + 1), AllianceFlipUtil.apply(FieldConstants.sourcePoses[i]));
+    }
+
+    for (int i = 0; i < FieldConstants.sidePoses.length; i++) {
+      sidePoses.put(Side.fromValue(i + 1), AllianceFlipUtil.apply(FieldConstants.sidePoses[i]));
+    }
   }
 
   public Pose2d getPolePose(Side side, Position position) {
@@ -135,8 +135,7 @@ public class SharcGen {
 
   public void updateGoalPositionAndHeight(Side selectedSide, Position selectedPosition) {
 
-    PoleMaxHeight selectedHeight =
-        FieldState.getMaxAvailablePoleHeight(selectedSide, selectedPosition);
+    PoleMaxHeight selectedHeight = FieldState.getMaxAvailablePoleHeight(selectedSide, selectedPosition);
 
     if (selectedHeight != PoleMaxHeight.FULL) {
       FieldState.setFilled(selectedSide, selectedPosition, selectedHeight.toHeight());
@@ -162,8 +161,7 @@ public class SharcGen {
 
     Position selectedPosition = selectPosition(selectedSide);
 
-    PoleMaxHeight selectedHeight =
-        FieldState.getMaxAvailablePoleHeight(selectedSide, selectedPosition);
+    PoleMaxHeight selectedHeight = FieldState.getMaxAvailablePoleHeight(selectedSide, selectedPosition);
 
     if (selectedHeight == PoleMaxHeight.FULL) {
       RobotState.setMode(OperationMode.HUMAN);
@@ -172,11 +170,10 @@ public class SharcGen {
 
     Height elevatorSetHeight = hasObject ? selectedHeight.toHeight() : Height.ZERO;
 
-    SequentialCommandGroup cycle =
-        new SequentialCommandGroup(
-            new ParallelCommandGroup(
-                generateCoralPath(selectedSide, selectedPosition), new ElevatorSet(elevator, 0)),
-            new ElevatorSet(elevator, elevatorSetHeight.getValue() * 15));
+    SequentialCommandGroup cycle = new SequentialCommandGroup(
+        new ParallelCommandGroup(
+            generateCoralPath(selectedSide, selectedPosition),
+            new ElevatorSet(elevator, FieldConstants.heightMap.get(elevatorSetHeight).doubleValue())));
 
     if (hasObject) {
       cycle.setName("Coral Place");
