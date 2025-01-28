@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.elevator;
 
+import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -11,6 +12,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
@@ -23,8 +26,11 @@ public class Elevator extends SubsystemBase {
   public Elevator(ElevatorIO io) {
     this.io = io;
     this.inputs = new ElevatorIOInputsAutoLogged();
-    this.controller =
-        new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
+    PIDConstants pidConstants =
+        Constants.currentMode == Mode.REAL
+            ? ElevatorConstants.kPIDConstants
+            : ElevatorConstants.kSimPIDConstants;
+    this.controller = new PIDController(pidConstants.kP, pidConstants.kI, pidConstants.kD);
     this.disconnectedAlerts = new Alert[2];
     for (int i = 0; i < disconnectedAlerts.length; i++) {
       disconnectedAlerts[i] =
@@ -69,6 +75,10 @@ public class Elevator extends SubsystemBase {
     return io.getVelocity();
   }
 
+  public double getCurrent() {
+    return io.getCurrent();
+  }
+
   public void stop() {
     setVoltage(0);
   }
@@ -80,5 +90,9 @@ public class Elevator extends SubsystemBase {
   public void setHeight(double height) {
     double out = controller.calculate(getPosition(), height);
     setPercent(MathUtil.clamp(out, -0.9, .9));
+  }
+
+  public void resetEncoders() {
+    io.resetEncoders();
   }
 }

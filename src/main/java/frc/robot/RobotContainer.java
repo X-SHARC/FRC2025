@@ -40,6 +40,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -88,8 +89,7 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 new VisionIOLimelight("limelight-sharc", drive::getRotation));
 
-        // TODO: Add real elevator IO
-        elevator = new Elevator(new ElevatorIO() {});
+        elevator = new Elevator(new ElevatorIOTalonFX());
 
         break;
 
@@ -109,7 +109,7 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
                 new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
-        elevator = new Elevator(new ElevatorIOSim() {});
+        elevator = new Elevator(new ElevatorIOSim());
         break;
 
       default:

@@ -31,7 +31,13 @@ public interface ElevatorIO {
     return 0.0;
   }
 
+  public default double getCurrent() {
+    return 0.0;
+  }
+
   public default double getVelocity() {
     return 0.0;
   }
+
+  public default void resetEncoders() {}
 }

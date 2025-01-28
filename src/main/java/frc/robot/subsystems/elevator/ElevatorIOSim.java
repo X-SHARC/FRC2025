@@ -7,11 +7,6 @@ import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 public class ElevatorIOSim implements ElevatorIO {
 
   private final ElevatorSim elevatorSim;
-
-  public double kP = ElevatorConstants.kP; // Override with specific values
-  public double kI = ElevatorConstants.kI; // Override with specific values
-  public double kD = ElevatorConstants.kD; // Override with specific values
-
   public double masterMotorAppliedVolts = 0.0;
   public double slaveMotorAppliedVolts = 0.0;
 
@@ -35,7 +30,7 @@ public class ElevatorIOSim implements ElevatorIO {
     elevatorSim.setInputVoltage(masterMotorAppliedVolts);
     elevatorSim.update(0.02);
 
-    double currentDrawAmps = elevatorSim.getCurrentDrawAmps();
+    double currentDrawAmps = Math.abs(elevatorSim.getCurrentDrawAmps());
     double positionMeters = getPosition();
     double velocityMetersPerSecond = getVelocity();
 
@@ -67,6 +62,11 @@ public class ElevatorIOSim implements ElevatorIO {
   @Override
   public double getPosition() {
     return elevatorSim.getPositionMeters();
+  }
+
+  @Override
+  public double getCurrent() {
+    return Math.abs(elevatorSim.getCurrentDrawAmps());
   }
 
   @Override
