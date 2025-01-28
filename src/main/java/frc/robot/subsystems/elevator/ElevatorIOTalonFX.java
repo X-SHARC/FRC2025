@@ -5,8 +5,11 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -25,6 +28,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final TalonFX slaveMotor;
 
   private final VoltageOut voltageRequest = new VoltageOut(0);
+  private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0);
 
   private final StatusSignal<Angle> masterPosition;
   private final StatusSignal<AngularVelocity> masterVelocity;
@@ -49,6 +53,23 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.CurrentLimits.StatorCurrentLimit = ElevatorConstants.MaxCurrent;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+    Slot0Configs slot0 = config.Slot0;
+    slot0.kP = ElevatorConstants.kP;
+    slot0.kI = ElevatorConstants.kI;
+    slot0.kD = ElevatorConstants.kD;
+
+    slot0.kS = ElevatorConstants.kS;
+    slot0.kV = ElevatorConstants.kV;
+    slot0.kA = ElevatorConstants.kA;
+    slot0.kG = ElevatorConstants.kG;
+
+    MotionMagicConfigs motionMagic = config.MotionMagic;
+
+    motionMagic.MotionMagicCruiseVelocity = ElevatorConstants.kMMCruiseVelocity;
+    motionMagic.MotionMagicAcceleration = ElevatorConstants.kMMAcceleration;
+    motionMagic.MotionMagicJerk = ElevatorConstants.kMMJerk;
+
     tryUntilOk(5, () -> masterMotor.getConfigurator().apply(config, 0.25));
     tryUntilOk(5, () -> masterMotor.setPosition(0.0, 0.25));
     tryUntilOk(5, () -> slaveMotor.getConfigurator().apply(config, 0.25));
@@ -117,6 +138,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     masterMotor.setControl(voltageRequest.withOutput(voltage));
   }
 
+  // return meters
   @Override
   public double getPosition() {
     return Units.rotationsToRadians(masterPosition.getValueAsDouble())
@@ -124,6 +146,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         / ElevatorConstants.kGearRatio;
   }
 
+  // meters per second
   @Override
   public double getVelocity() {
     return Units.rotationsToRadians(masterVelocity.getValueAsDouble())
@@ -140,5 +163,18 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void resetEncoders() {
     tryUntilOk(5, () -> masterMotor.setPosition(0.0, 0.25));
     tryUntilOk(5, () -> slaveMotor.setPosition(0.0, 0.25));
+  }
+
+  @Override
+  public boolean isAtSetpoint() {
+    return false;
+  }
+
+  // set height in meters
+  @Override
+  public void setHeight(double meters) {
+    double rotations =
+        meters * ElevatorConstants.kGearRatio / ElevatorConstants.gearRadius * 2 * Math.PI;
+    masterMotor.setControl(motionMagicRequest.withPosition(rotations));
   }
 }

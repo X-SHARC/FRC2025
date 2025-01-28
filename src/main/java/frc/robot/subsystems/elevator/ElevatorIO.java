@@ -39,5 +39,11 @@ public interface ElevatorIO {
     return 0.0;
   }
 
+  public default boolean isAtSetpoint() {
+    return false;
+  }
+
+  public default void setHeight(double height) {}
+
   public default void resetEncoders() {}
 }

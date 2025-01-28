@@ -1,5 +1,8 @@
 package frc.robot.subsystems.elevator;
 
+import com.pathplanner.lib.config.PIDConstants;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
@@ -9,6 +12,10 @@ public class ElevatorIOSim implements ElevatorIO {
   private final ElevatorSim elevatorSim;
   public double masterMotorAppliedVolts = 0.0;
   public double slaveMotorAppliedVolts = 0.0;
+
+  private PIDConstants pidConstants = ElevatorConstants.kSimPIDConstants;
+  private PIDController controller =
+      new PIDController(pidConstants.kP, pidConstants.kI, pidConstants.kD);
 
   public ElevatorIOSim() {
     elevatorSim =
@@ -23,6 +30,8 @@ public class ElevatorIOSim implements ElevatorIO {
             0.90,
             true,
             0);
+
+    this.controller.setTolerance(ElevatorConstants.kTolerance);
   }
 
   @Override
@@ -59,9 +68,10 @@ public class ElevatorIOSim implements ElevatorIO {
     slaveMotorAppliedVolts = voltage;
   }
 
+  // return centimeters
   @Override
   public double getPosition() {
-    return elevatorSim.getPositionMeters();
+    return elevatorSim.getPositionMeters() * 100;
   }
 
   @Override
@@ -72,5 +82,16 @@ public class ElevatorIOSim implements ElevatorIO {
   @Override
   public double getVelocity() {
     return elevatorSim.getVelocityMetersPerSecond();
+  }
+
+  @Override
+  public boolean isAtSetpoint() {
+    return controller.atSetpoint();
+  }
+
+  @Override
+  public void setHeight(double height) {
+    double out = controller.calculate(getPosition(), height);
+    setVoltage(MathUtil.clamp(out, -0.9, .9) * 12);
   }
 }

@@ -197,6 +197,12 @@ public class RobotContainer {
         .onTrue(new InstantCommand(() -> RobotState.setMode(OperationMode.AUTO)))
         .onTrue(new GenerateAuto(elevator));
 
+    controller.R3().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    controller.R2().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    controller.L3().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    controller.L2().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
     controller.square().onTrue(new InstantCommand(() -> RobotState.setMode(OperationMode.HUMAN)));
   }
 

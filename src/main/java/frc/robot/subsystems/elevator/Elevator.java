@@ -4,41 +4,52 @@
 
 package frc.robot.subsystems.elevator;
 
-import com.pathplanner.lib.config.PIDConstants;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.Mode;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import java.util.function.Consumer;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs;
   private final Alert disconnectedAlerts[];
-  private final PIDController controller;
+  private final SysIdRoutine sysIdRoutine;
 
   /** Creates a new Elevator. */
   public Elevator(ElevatorIO io) {
     this.io = io;
     this.inputs = new ElevatorIOInputsAutoLogged();
-    PIDConstants pidConstants =
-        Constants.currentMode == Mode.REAL
-            ? ElevatorConstants.kPIDConstants
-            : ElevatorConstants.kSimPIDConstants;
-    this.controller = new PIDController(pidConstants.kP, pidConstants.kI, pidConstants.kD);
     this.disconnectedAlerts = new Alert[2];
     for (int i = 0; i < disconnectedAlerts.length; i++) {
-      disconnectedAlerts[i] =
-          new Alert(
-              "Elevator motor " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
+      disconnectedAlerts[i] = new Alert(
+          "Elevator motor " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
 
-    this.controller.setTolerance(ElevatorConstants.kTolerance);
+    Consumer<Voltage> voltageConsumer = (Voltage voltage) -> {
+      io.setVoltage(voltage.magnitude());
+    };
+
+    sysIdRoutine = new SysIdRoutine(
+        new SysIdRoutine.Config(
+            null,
+            null,
+            null,
+            (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
+        new SysIdRoutine.Mechanism(voltageConsumer, null, this));
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.dynamic(direction);
   }
 
   @Override
@@ -68,7 +79,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public double getPosition() {
-    return io.getPosition() * 100;
+    return io.getPosition();
   }
 
   public double getVelocity() {
@@ -84,12 +95,11 @@ public class Elevator extends SubsystemBase {
   }
 
   public boolean isAtSetpoint() {
-    return controller.atSetpoint();
+    return io.isAtSetpoint();
   }
 
   public void setHeight(double height) {
-    double out = controller.calculate(getPosition(), height);
-    setPercent(MathUtil.clamp(out, -0.9, .9));
+    io.setHeight(height);
   }
 
   public void resetEncoders() {
