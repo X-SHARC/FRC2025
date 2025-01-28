@@ -6,20 +6,15 @@ package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import java.util.function.Consumer;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs;
   private final Alert disconnectedAlerts[];
-  private final SysIdRoutine sysIdRoutine;
 
   /** Creates a new Elevator. */
   public Elevator(ElevatorIO io) {
@@ -30,26 +25,6 @@ public class Elevator extends SubsystemBase {
       disconnectedAlerts[i] = new Alert(
           "Elevator motor " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
-
-    Consumer<Voltage> voltageConsumer = (Voltage voltage) -> {
-      io.setVoltage(voltage.magnitude());
-    };
-
-    sysIdRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(
-            null,
-            null,
-            null,
-            (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
-        new SysIdRoutine.Mechanism(voltageConsumer, null, this));
-  }
-
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine.quasistatic(direction);
-  }
-
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine.dynamic(direction);
   }
 
   @Override
@@ -64,10 +39,10 @@ public class Elevator extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     Logger.recordOutput(
-        "Elevator/Pose/FirstPose3D", new Pose3d(0, 0, getPosition() / 100, new Rotation3d()));
+        "Elevator/Pose/FirstPose3D", new Pose3d(0, 0, getPosition(), new Rotation3d()));
     Logger.recordOutput(
         "Elevator/Pose/CarriagePose3D",
-        new Pose3d(0, 0, getPosition() * 1.8 / 100, new Rotation3d()));
+        new Pose3d(0, 0, getPosition() * 1.8, new Rotation3d()));
   }
 
   public void setVoltage(double voltage) {

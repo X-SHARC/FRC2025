@@ -13,7 +13,7 @@ public final class ElevatorConstants {
 
   public static final double gearRadius = 0.025; // meters TODO: Check this value
   public static final double maxHeight = 80;
-  public static final double weight = 4; // kg
+  public static final double weight = 15; // kg
 
   public static final double HomeCurrent = 40; // TODO: Check this value
   public static final double MaxCurrent = 80; // TODO: Check this value
