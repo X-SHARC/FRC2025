@@ -21,6 +21,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.Constants;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -44,8 +45,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final Debouncer slaveConnectedDebouncer = new Debouncer(0.5);
 
   public ElevatorIOTalonFX() {
-    this.masterMotor = new TalonFX(ElevatorConstants.masterMotorPort);
-    this.slaveMotor = new TalonFX(ElevatorConstants.slaveMotorPort);
+    this.masterMotor = new TalonFX(ElevatorConstants.masterMotorPort, Constants.canivoreCANBus);
+    this.slaveMotor = new TalonFX(ElevatorConstants.slaveMotorPort, Constants.canivoreCANBus);
 
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;

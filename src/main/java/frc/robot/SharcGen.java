@@ -19,7 +19,6 @@ import frc.robot.util.Enums.PoleMaxHeight;
 import frc.robot.util.Enums.Position;
 import frc.robot.util.Enums.Side;
 import frc.robot.util.Enums.Source;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.littletonrobotics.junction.Logger;
@@ -35,7 +34,8 @@ public class SharcGen {
   private void initializeMaps() {
 
     for (int i = 0; i < FieldConstants.sourcePoses.length; i++) {
-      sourcePoses.put(Source.fromValue(i + 1), AllianceFlipUtil.apply(FieldConstants.sourcePoses[i]));
+      sourcePoses.put(
+          Source.fromValue(i + 1), AllianceFlipUtil.apply(FieldConstants.sourcePoses[i]));
     }
 
     for (int i = 0; i < FieldConstants.sidePoses.length; i++) {
@@ -135,7 +135,8 @@ public class SharcGen {
 
   public void updateGoalPositionAndHeight(Side selectedSide, Position selectedPosition) {
 
-    PoleMaxHeight selectedHeight = FieldState.getMaxAvailablePoleHeight(selectedSide, selectedPosition);
+    PoleMaxHeight selectedHeight =
+        FieldState.getMaxAvailablePoleHeight(selectedSide, selectedPosition);
 
     if (selectedHeight != PoleMaxHeight.FULL) {
       FieldState.setFilled(selectedSide, selectedPosition, selectedHeight.toHeight());
@@ -161,7 +162,8 @@ public class SharcGen {
 
     Position selectedPosition = selectPosition(selectedSide);
 
-    PoleMaxHeight selectedHeight = FieldState.getMaxAvailablePoleHeight(selectedSide, selectedPosition);
+    PoleMaxHeight selectedHeight =
+        FieldState.getMaxAvailablePoleHeight(selectedSide, selectedPosition);
 
     if (selectedHeight == PoleMaxHeight.FULL) {
       RobotState.setMode(OperationMode.HUMAN);
@@ -170,10 +172,12 @@ public class SharcGen {
 
     Height elevatorSetHeight = hasObject ? selectedHeight.toHeight() : Height.ZERO;
 
-    SequentialCommandGroup cycle = new SequentialCommandGroup(
-        new ParallelCommandGroup(
-            generateCoralPath(selectedSide, selectedPosition),
-            new ElevatorSet(elevator, FieldConstants.heightMap.get(elevatorSetHeight).doubleValue())));
+    SequentialCommandGroup cycle =
+        new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                generateCoralPath(selectedSide, selectedPosition),
+                new ElevatorSet(
+                    elevator, FieldConstants.heightMap.get(elevatorSetHeight).doubleValue())));
 
     if (hasObject) {
       cycle.setName("Coral Place");

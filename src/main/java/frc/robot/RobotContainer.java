@@ -41,6 +41,9 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.outtake.Outtake;
+import frc.robot.subsystems.outtake.OuttakeIO;
+import frc.robot.subsystems.outtake.OuttakeIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -66,6 +69,9 @@ public class RobotContainer {
   private final Vision vision;
 
   private final Elevator elevator;
+
+  @SuppressWarnings("unused")
+  private final Outtake outtake;
 
   // Controller
   private final CommandPS5Controller controller = new CommandPS5Controller(0);
@@ -94,6 +100,8 @@ public class RobotContainer {
 
         elevator = new Elevator(new ElevatorIOTalonFX());
 
+        outtake = new Outtake(new OuttakeIOTalonFX());
+
         break;
 
       case SIM:
@@ -112,6 +120,10 @@ public class RobotContainer {
             new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
 
         elevator = new Elevator(new ElevatorIOSim());
+
+        // isn't simulated
+        outtake = new Outtake(new OuttakeIO() {
+        });
         break;
 
       default:
@@ -133,6 +145,9 @@ public class RobotContainer {
         });
 
         elevator = new Elevator(new ElevatorIO() {
+        });
+
+        outtake = new Outtake(new OuttakeIO() {
         });
 
         break;

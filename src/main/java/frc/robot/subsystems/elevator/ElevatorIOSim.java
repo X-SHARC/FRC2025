@@ -14,20 +14,22 @@ public class ElevatorIOSim implements ElevatorIO {
   public double slaveMotorAppliedVolts = 0.0;
 
   private PIDConstants pidConstants = ElevatorConstants.kSimPIDConstants;
-  private PIDController controller = new PIDController(pidConstants.kP, pidConstants.kI, pidConstants.kD);
+  private PIDController controller =
+      new PIDController(pidConstants.kP, pidConstants.kI, pidConstants.kD);
 
   public ElevatorIOSim() {
-    elevatorSim = new ElevatorSim(
-        LinearSystemId.createElevatorSystem(
+    elevatorSim =
+        new ElevatorSim(
+            LinearSystemId.createElevatorSystem(
+                DCMotor.getKrakenX60(2),
+                ElevatorConstants.weight,
+                ElevatorConstants.gearRadius,
+                ElevatorConstants.kGearRatio),
             DCMotor.getKrakenX60(2),
-            ElevatorConstants.weight,
-            ElevatorConstants.gearRadius,
-            ElevatorConstants.kGearRatio),
-        DCMotor.getKrakenX60(2),
-        0,
-        0.90,
-        true,
-        0);
+            0,
+            0.90,
+            true,
+            0);
 
     this.controller.setTolerance(ElevatorConstants.kTolerance);
   }
@@ -45,13 +47,15 @@ public class ElevatorIOSim implements ElevatorIO {
     inputs.masterMotorCurrentAmps = currentDrawAmps / 2;
     inputs.masterMotorAppliedVolts = masterMotorAppliedVolts;
     inputs.masterMotorPositionRad = positionMeters * ElevatorConstants.kGearRatio * 2 * Math.PI;
-    inputs.masterMotorVelocityRadPerSec = velocityMetersPerSecond * ElevatorConstants.kGearRatio * 2 * Math.PI;
+    inputs.masterMotorVelocityRadPerSec =
+        velocityMetersPerSecond * ElevatorConstants.kGearRatio * 2 * Math.PI;
 
     inputs.slaveMotorConnected = true;
     inputs.slaveMotorCurrentAmps = currentDrawAmps / 2;
     inputs.slaveMotorAppliedVolts = slaveMotorAppliedVolts;
     inputs.slaveMotorPositionRad = positionMeters * ElevatorConstants.kGearRatio * 2 * Math.PI;
-    inputs.slaveMotorVelocityRadPerSec = velocityMetersPerSecond * ElevatorConstants.kGearRatio * 2 * Math.PI;
+    inputs.slaveMotorVelocityRadPerSec =
+        velocityMetersPerSecond * ElevatorConstants.kGearRatio * 2 * Math.PI;
 
     inputs.elevatorPositionMeters = positionMeters;
     inputs.elevatorVelocityMetersPerSec = velocityMetersPerSecond;

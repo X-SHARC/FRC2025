@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
+// the elevatortalonfx doesn't override isAtSetpoint bc it works with motionmagic
+
 public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   private final ElevatorIOInputsAutoLogged inputs;
@@ -22,8 +24,9 @@ public class Elevator extends SubsystemBase {
     this.inputs = new ElevatorIOInputsAutoLogged();
     this.disconnectedAlerts = new Alert[2];
     for (int i = 0; i < disconnectedAlerts.length; i++) {
-      disconnectedAlerts[i] = new Alert(
-          "Elevator motor " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
+      disconnectedAlerts[i] =
+          new Alert(
+              "Elevator motor " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
   }
 
@@ -41,8 +44,7 @@ public class Elevator extends SubsystemBase {
     Logger.recordOutput(
         "Elevator/Pose/FirstPose3D", new Pose3d(0, 0, getPosition(), new Rotation3d()));
     Logger.recordOutput(
-        "Elevator/Pose/CarriagePose3D",
-        new Pose3d(0, 0, getPosition() * 1.8, new Rotation3d()));
+        "Elevator/Pose/CarriagePose3D", new Pose3d(0, 0, getPosition() * 1.8, new Rotation3d()));
   }
 
   public void setVoltage(double voltage) {
