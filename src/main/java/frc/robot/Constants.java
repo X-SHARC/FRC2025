@@ -49,6 +49,8 @@ public final class Constants {
             4.98, 4.5, Units.degreesToRadians(360), Units.degreesToRadians(720), 12);
   }
 
+  public static final double speedMultiplier = 0.3;
+
   public static final class FieldConstants {
 
     public static final double fieldLength = Units.inchesToMeters(690.876);

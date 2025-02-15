@@ -66,9 +66,11 @@ public class TunerConstants {
       new TalonFXConfiguration()
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  // Swerve azimuth does not require much torque output, so we can set a
+                  // Swerve azimuth does not require much torque output, so we can
+                  // set a
                   // relatively low
-                  // stator current limit to help avoid brownouts without impacting performance.
+                  // stator current limit to help avoid brownouts without
+                  // impacting performance.
                   .withStatorCurrentLimit(Amps.of(60))
                   .withStatorCurrentLimitEnable(true));
   private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
@@ -81,8 +83,7 @@ public class TunerConstants {
 
   // Theoretical free speed (m/s) at 12 V applied output;
   // This needs to be tuned to your individual robot
-  private static final double speedMultiplier = 0.3;
-  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.73 * speedMultiplier);
+  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.73);
 
   // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
   // This may need to be tuned to your individual robot
@@ -98,8 +99,8 @@ public class TunerConstants {
   private static final int kPigeonId = 0;
 
   // These are only used for simulation
-  private static final MomentOfInertia kSteerInertia = KilogramSquareMeters.of(0.01);
-  private static final MomentOfInertia kDriveInertia = KilogramSquareMeters.of(0.01);
+  private static final MomentOfInertia kSteerInertia = KilogramSquareMeters.of(0.004);
+  private static final MomentOfInertia kDriveInertia = KilogramSquareMeters.of(0.025);
   // Simulated voltage necessary to overcome friction
   private static final Voltage kSteerFrictionVoltage = Volts.of(0.2);
   private static final Voltage kDriveFrictionVoltage = Volts.of(0.2);
@@ -144,8 +145,8 @@ public class TunerConstants {
   private static final boolean kFrontLeftSteerMotorInverted = true;
   private static final boolean kFrontLeftEncoderInverted = false;
 
-  private static final Distance kFrontLeftXPos = Inches.of(1137.5);
-  private static final Distance kFrontLeftYPos = Inches.of(1137.5);
+  private static final Distance kFrontLeftXPos = Inches.of(11.375);
+  private static final Distance kFrontLeftYPos = Inches.of(11.375);
 
   // Front Right
   private static final int kFrontRightDriveMotorId = 6;
@@ -155,8 +156,8 @@ public class TunerConstants {
   private static final boolean kFrontRightSteerMotorInverted = true;
   private static final boolean kFrontRightEncoderInverted = false;
 
-  private static final Distance kFrontRightXPos = Inches.of(1137.5);
-  private static final Distance kFrontRightYPos = Inches.of(-1137.5);
+  private static final Distance kFrontRightXPos = Inches.of(11.375);
+  private static final Distance kFrontRightYPos = Inches.of(-11.375);
 
   // Back Left
   private static final int kBackLeftDriveMotorId = 7;
@@ -166,8 +167,8 @@ public class TunerConstants {
   private static final boolean kBackLeftSteerMotorInverted = true;
   private static final boolean kBackLeftEncoderInverted = false;
 
-  private static final Distance kBackLeftXPos = Inches.of(-1137.5);
-  private static final Distance kBackLeftYPos = Inches.of(1137.5);
+  private static final Distance kBackLeftXPos = Inches.of(-11.375);
+  private static final Distance kBackLeftYPos = Inches.of(11.375);
 
   // Back Right
   private static final int kBackRightDriveMotorId = 8;
@@ -177,8 +178,8 @@ public class TunerConstants {
   private static final boolean kBackRightSteerMotorInverted = true;
   private static final boolean kBackRightEncoderInverted = false;
 
-  private static final Distance kBackRightXPos = Inches.of(-1137.5);
-  private static final Distance kBackRightYPos = Inches.of(-1137.5);
+  private static final Distance kBackRightXPos = Inches.of(-11.375);
+  private static final Distance kBackRightYPos = Inches.of(-11.375);
 
   public static final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
