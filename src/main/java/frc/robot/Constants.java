@@ -73,10 +73,10 @@ public final class Constants {
 
     public static final Map<Height, Number> heightMap =
         Map.of(
-            Height.ZERO, 0.0,
-            Height.L1, 0,
-            Height.L2, 25.0,
-            Height.L3, 40.0,
-            Height.L4, 80.0);
+            Height.ZERO, 0,
+            Height.L1, 0.05,
+            Height.L2, 0.12,
+            Height.L3, 0.30,
+            Height.L4, 0.62);
   }
 }

@@ -32,6 +32,11 @@ public class Enums {
     MIDDLE
   }
 
+  public enum ElevatorState {
+    IDLE,
+    MOVING
+  }
+
   /** Interface for enums with associated integer values. */
   public interface ValueEnum {
     /**

@@ -45,6 +45,10 @@ public interface OuttakeIO {
     return false;
   }
 
+  public default boolean isAtSetpoint() {
+    return false;
+  }
+
   public default void setPivotAngle(double angle) {}
 
   public default void resetPivotEncoder() {}

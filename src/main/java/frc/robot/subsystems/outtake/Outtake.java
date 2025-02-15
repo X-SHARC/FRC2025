@@ -33,6 +33,9 @@ public class Outtake extends SubsystemBase {
 
     disconnectedAlerts[0].set(!inputs.pivotMotorConnected);
     disconnectedAlerts[1].set(!inputs.outtakeMotorConnected);
+
+    Logger.recordOutput("PosRotations", inputs.pivotAngleDegrees / 48);
+    Logger.recordOutput("Outtake/beamBreak", io.isBeamBreakTriggered());
   }
 
   public void setPivotVoltage(double voltage) {
@@ -65,6 +68,10 @@ public class Outtake extends SubsystemBase {
 
   public void setPivotAngle(double angle) {
     io.setPivotAngle(angle);
+  }
+
+  public boolean isAtSetpoint() {
+    return io.isAtSetpoint();
   }
 
   public void resetPivotEncoder() {

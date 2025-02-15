@@ -28,6 +28,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final TalonFX masterMotor;
   private final TalonFX slaveMotor;
 
+  private double setpoint;
+
   private final VoltageOut voltageRequest = new VoltageOut(0);
   private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0);
 
@@ -50,8 +52,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    // TODO: Check inverted values
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.CurrentLimits.StatorCurrentLimit = ElevatorConstants.MaxCurrent;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
 
@@ -76,7 +77,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     tryUntilOk(5, () -> slaveMotor.getConfigurator().apply(config, 0.25));
     tryUntilOk(5, () -> slaveMotor.setPosition(0.0, 0.25));
 
-    slaveMotor.setControl(new Follower(masterMotor.getDeviceID(), true));
+    slaveMotor.setControl(new Follower(masterMotor.getDeviceID(), false));
 
     masterPosition = masterMotor.getPosition();
     masterVelocity = masterMotor.getVelocity();
@@ -125,10 +126,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.slaveMotorCurrentAmps = slaveCurrent.getValueAsDouble();
 
     inputs.elevatorPositionMeters =
-        inputs.masterMotorPositionRad * ElevatorConstants.gearRadius / ElevatorConstants.kGearRatio;
+        inputs.masterMotorPositionRad * ElevatorConstants.drumRadius / ElevatorConstants.kGearRatio;
     inputs.elevatorVelocityMetersPerSec =
         inputs.masterMotorVelocityRadPerSec
-            * ElevatorConstants.gearRadius
+            * ElevatorConstants.drumRadius
             / ElevatorConstants.kGearRatio;
     inputs.elevatorCurrentAmps =
         Math.abs(inputs.masterMotorCurrentAmps) + Math.abs(inputs.slaveMotorCurrentAmps);
@@ -142,8 +143,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   // return meters
   @Override
   public double getPosition() {
-    return Units.rotationsToRadians(masterPosition.getValueAsDouble())
-        * ElevatorConstants.gearRadius
+    return Units.rotationsToRadians(slavePosition.getValueAsDouble())
+        * ElevatorConstants.drumRadius
         / ElevatorConstants.kGearRatio;
   }
 
@@ -151,7 +152,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public double getVelocity() {
     return Units.rotationsToRadians(masterVelocity.getValueAsDouble())
-        * ElevatorConstants.gearRadius
+        * ElevatorConstants.drumRadius
         / ElevatorConstants.kGearRatio;
   }
 
@@ -168,14 +169,15 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public boolean isAtSetpoint() {
-    return false;
+    return (Math.abs(setpoint - this.getPosition()) <= ElevatorConstants.kTolerance);
   }
 
   // set height in meters
   @Override
   public void setHeight(double meters) {
+    setpoint = meters;
     double rotations =
-        meters * ElevatorConstants.kGearRatio / ElevatorConstants.gearRadius * 2 * Math.PI;
+        meters * ElevatorConstants.kGearRatio / (ElevatorConstants.drumRadius * 2 * Math.PI);
     masterMotor.setControl(motionMagicRequest.withPosition(rotations));
   }
 }

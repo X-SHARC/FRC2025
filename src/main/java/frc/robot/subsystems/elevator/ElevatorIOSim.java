@@ -23,7 +23,7 @@ public class ElevatorIOSim implements ElevatorIO {
             LinearSystemId.createElevatorSystem(
                 DCMotor.getKrakenX60(2),
                 ElevatorConstants.weight,
-                ElevatorConstants.gearRadius,
+                ElevatorConstants.drumRadius,
                 ElevatorConstants.kGearRatio),
             DCMotor.getKrakenX60(2),
             0,
@@ -68,7 +68,6 @@ public class ElevatorIOSim implements ElevatorIO {
     slaveMotorAppliedVolts = voltage;
   }
 
-  // return centimeters
   @Override
   public double getPosition() {
     return elevatorSim.getPositionMeters();

@@ -29,6 +29,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
   private final TalonFX outtakeMotor;
 
   private final DigitalInput beamBreak;
+  private double setpoint = 0;
 
   private final VoltageOut voltageRequest = new VoltageOut(0);
   private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0);
@@ -43,6 +44,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   private final Debouncer pivotConnectedDebouncer = new Debouncer(0.5);
   private final Debouncer outtakeConnectedDebouncer = new Debouncer(0.5);
+  private final Debouncer outtakeCurrentDebouncer = new Debouncer(0.1);
 
   public OuttakeIOTalonFX() {
     this.pivotMotor = new TalonFX(OuttakeConstants.pivotMotor, Constants.canivoreCANBus);
@@ -53,8 +55,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
     TalonFXConfiguration pivotConfig = new TalonFXConfiguration();
 
     pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    pivotConfig.MotorOutput.Inverted =
-        InvertedValue.Clockwise_Positive; // TODO: Check inverted values
+    pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     pivotConfig.CurrentLimits.StatorCurrentLimit = OuttakeConstants.pivotMaxCurrent;
     pivotConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
@@ -67,7 +68,6 @@ public class OuttakeIOTalonFX implements OuttakeIO {
     pivotSlot0.kS = OuttakeConstants.kS;
     pivotSlot0.kV = OuttakeConstants.kV;
     pivotSlot0.kA = OuttakeConstants.kA;
-    pivotSlot0.kG = OuttakeConstants.kG;
 
     MotionMagicConfigs pivotMotionMagic = pivotConfig.MotionMagic;
 
@@ -78,8 +78,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
     TalonFXConfiguration outtakeConfig = new TalonFXConfiguration();
 
     outtakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    outtakeConfig.MotorOutput.Inverted =
-        InvertedValue.Clockwise_Positive; // TODO: Check inverted values
+    outtakeConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     outtakeConfig.CurrentLimits.StatorCurrentLimit = OuttakeConstants.outtakeMaxCurrent;
     outtakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
@@ -125,8 +124,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
     inputs.outtakeMotorAppliedVolts = outtakeVoltage.getValueAsDouble();
     inputs.outtakeMotorCurrentAmps = outtakeCurrent.getValueAsDouble();
 
-    inputs.pivotAngleDegrees =
-        Units.radiansToDegrees(inputs.pivotMotorPositionRad) / OuttakeConstants.kGearRatio;
+    inputs.pivotAngleDegrees = getPivotPosition();
   }
 
   @Override
@@ -142,7 +140,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
   // Degrees
   @Override
   public double getPivotPosition() {
-    return pivotPosition.getValueAsDouble() / OuttakeConstants.kGearRatio;
+    return Units.radiansToDegrees(pivotPosition.getValueAsDouble() / (OuttakeConstants.kGearRatio));
   }
 
   @Override
@@ -162,13 +160,22 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   @Override
   public boolean isBeamBreakTriggered() {
-    return beamBreak.get();
+
+    double current = getOuttakeCurrent();
+    return outtakeCurrentDebouncer.calculate(current < 60 && current > 25);
+    // return beamBreak.get();
   }
 
   @Override
   public void setPivotAngle(double angle) {
-    double rotations = Units.degreesToRotations(angle) * OuttakeConstants.kGearRatio;
+    this.setpoint = angle;
+    double rotations = Units.degreesToRotations(angle) * OuttakeConstants.kGearRatio * 2 * Math.PI;
     pivotMotor.setControl(motionMagicRequest.withPosition(rotations));
+  }
+
+  @Override
+  public boolean isAtSetpoint() {
+    return (Math.abs(setpoint - this.getPivotPosition()) <= OuttakeConstants.kTolerance);
   }
 
   @Override

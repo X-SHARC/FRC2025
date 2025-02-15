@@ -1,5 +1,6 @@
 package frc.robot.state;
 
+import frc.robot.util.Enums.ElevatorState;
 import frc.robot.util.Enums.GameObject;
 import frc.robot.util.Enums.Height;
 import frc.robot.util.Enums.OperationMode;
@@ -13,6 +14,7 @@ public class RobotState {
 
   private static OperationMode currentMode = OperationMode.HUMAN;
   private static Height currentElevatorHeight = Height.ZERO;
+  private static ElevatorState currentElevatorState = ElevatorState.IDLE;
   private static GameObject currentGameObject = GameObject.NONE;
   private static SideOverride currentSideOverride = SideOverride.NONE;
 
@@ -34,6 +36,10 @@ public class RobotState {
     currentSideOverride = side;
   }
 
+  public static void setElevatorState(ElevatorState state) {
+    currentElevatorState = state;
+  }
+
   /* GETTERS */
 
   public static OperationMode getMode() {
@@ -42,6 +48,10 @@ public class RobotState {
 
   public static Height getElevatorHeight() {
     return currentElevatorHeight;
+  }
+
+  public static ElevatorState getElevatorState() {
+    return currentElevatorState;
   }
 
   public static GameObject getGameObject() {
@@ -71,6 +81,7 @@ public class RobotState {
     currentElevatorHeight = Height.ZERO;
     currentGameObject = GameObject.NONE;
     currentSideOverride = SideOverride.NONE;
+    currentElevatorState = ElevatorState.IDLE;
   }
 
   public static RobotState getInstance() {
