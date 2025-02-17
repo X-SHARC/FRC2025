@@ -44,7 +44,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   private final Debouncer pivotConnectedDebouncer = new Debouncer(0.5);
   private final Debouncer outtakeConnectedDebouncer = new Debouncer(0.5);
-  private final Debouncer outtakeCurrentDebouncer = new Debouncer(0.1);
+  // private final Debouncer outtakeCurrentDebouncer = new Debouncer(0.1);
 
   public OuttakeIOTalonFX() {
     this.pivotMotor = new TalonFX(OuttakeConstants.pivotMotor, Constants.canivoreCANBus);
@@ -160,10 +160,10 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   @Override
   public boolean isBeamBreakTriggered() {
+    return beamBreak.get();
 
-    double current = getOuttakeCurrent();
-    return outtakeCurrentDebouncer.calculate(current < 60 && current > 25);
-    // return beamBreak.get();
+    // double current = getOuttakeCurrent();
+    // return outtakeCurrentDebouncer.calculate(current < 60 && current > 25);
   }
 
   @Override
