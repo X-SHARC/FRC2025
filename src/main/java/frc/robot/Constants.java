@@ -45,8 +45,7 @@ public final class Constants {
   public final class GeneratorConstants {
     public static final double centerToPoleDist = 1.0;
     public static final PathConstraints constraints =
-        new PathConstraints(
-            4.98, 4.5, Units.degreesToRadians(360), Units.degreesToRadians(720), 12);
+        new PathConstraints(3, 3, Units.degreesToRadians(360), Units.degreesToRadians(720), 12);
   }
 
   public static final double speedMultiplier = 0.3;

@@ -33,21 +33,26 @@ public class SharcGen {
 
   private void initializeMaps() {
 
+    System.out.println(FieldConstants.sourcePoses);
+
     for (int i = 0; i < FieldConstants.sourcePoses.length; i++) {
+
       sourcePoses.put(
           Source.fromValue(i + 1), AllianceFlipUtil.apply(FieldConstants.sourcePoses[i]));
     }
 
+    System.out.println(sourcePoses);
+
     for (int i = 0; i < FieldConstants.sidePoses.length; i++) {
+
       sidePoses.put(Side.fromValue(i + 1), AllianceFlipUtil.apply(FieldConstants.sidePoses[i]));
     }
   }
 
   public Pose2d getPolePose(Side side, Position position) {
     double multiplier = position == Position.LEFT ? -.175 : .175;
-    Pose2d sidePose = sidePoses.get(side);
+    Pose2d sidePose = AllianceFlipUtil.apply(sidePoses.get(side)); // Apply AllianceFlip
     double sideAngle = sidePose.getRotation().getRadians();
-    // return sidePose;
     return new Pose2d(
         sidePose.getX() - Math.sin(sideAngle) * multiplier,
         sidePose.getY() + Math.cos(sideAngle) * multiplier,
@@ -57,15 +62,15 @@ public class SharcGen {
   public Command generateSourcePath() {
     Source selectedSource = selectSource();
     return AutoBuilder.pathfindToPose(
-        sourcePoses.get(selectedSource), GeneratorConstants.constraints, 0);
+        AllianceFlipUtil.apply(sourcePoses.get(selectedSource)), GeneratorConstants.constraints, 0);
   }
 
   public Command generateSourcePath(Source source) {
-    return AutoBuilder.pathfindToPose(sourcePoses.get(source), GeneratorConstants.constraints, 0);
+    return AutoBuilder.pathfindToPose(
+        AllianceFlipUtil.apply(sourcePoses.get(source)), GeneratorConstants.constraints, 0);
   }
 
   private Source selectSource() {
-    // TODO: Implement override logic
     Source selectedSource = selectNearestSource();
     return selectedSource;
   }
@@ -78,7 +83,9 @@ public class SharcGen {
   }
 
   private double getDistanceToSource(Pose2d currentPose, Source source) {
-    return currentPose.getTranslation().getDistance(sourcePoses.get(source).getTranslation());
+    return currentPose
+        .getTranslation()
+        .getDistance(AllianceFlipUtil.apply(sourcePoses.get(source)).getTranslation());
   }
 
   public Command generateSidePath() {
@@ -90,11 +97,10 @@ public class SharcGen {
 
   public Command generateSidePath(Side side, Position position) {
     return AutoBuilder.pathfindToPose(
-        getPolePose(side, position), GeneratorConstants.constraints, 0);
+        AllianceFlipUtil.apply(getPolePose(side, position)), GeneratorConstants.constraints, 0);
   }
 
-  private Side selectSide() {
-    // TODO: Implement override logic
+  public Side selectSide() {
     Side selectedSide = selectOptimalSide();
     return selectedSide;
   }
@@ -115,7 +121,7 @@ public class SharcGen {
   }
 
   private double getWeight(Side side, Pose2d currentPose) {
-    Pose2d sidePose = sidePoses.get(side);
+    Pose2d sidePose = AllianceFlipUtil.apply(sidePoses.get(side)); // Apply AllianceFlip
     double distance = currentPose.getTranslation().getDistance(sidePose.getTranslation());
     double dW = distance == 0 ? 1 : 1 / distance;
 
@@ -126,7 +132,7 @@ public class SharcGen {
     return weight;
   }
 
-  private Position selectPosition(Side side) {
+  public Position selectPosition(Side side) {
     PoleMaxHeight leftHeight = FieldState.getMaxAvailablePoleHeight(side, Position.LEFT);
     PoleMaxHeight rightHeight = FieldState.getMaxAvailablePoleHeight(side, Position.RIGHT);
 

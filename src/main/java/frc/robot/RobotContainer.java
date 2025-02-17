@@ -20,15 +20,18 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.AutoAlign;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.HeightSequence;
 import frc.robot.commands.OutCoral;
 import frc.robot.commands.TakeAlgea;
 import frc.robot.commands.TakeCoral;
 import frc.robot.generated.TunerConstants;
+import frc.robot.state.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -42,7 +45,11 @@ import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.outtake.Outtake;
 import frc.robot.subsystems.outtake.OuttakeIO;
 import frc.robot.subsystems.outtake.OuttakeIOTalonFX;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.Enums.Height;
+import frc.robot.util.Enums.OperationMode;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -56,12 +63,14 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
 
-  // @SuppressWarnings("unused")
-  // private final Vision vision;
+  @SuppressWarnings("unused")
+  private final Vision vision;
 
   private final Elevator elevator;
 
   private final Outtake outtake;
+
+  SharcGen gen = new SharcGen();
 
   // Controller
   private final CommandXboxController m_driver = new CommandXboxController(0);
@@ -84,9 +93,10 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        // vision = new Vision(
-        // drive::addVisionMeasurement,
-        // new VisionIOLimelight("limelight-sharc", drive::getRotation));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOLimelight("limelight-sharc", drive::getRotation));
 
         elevator = new Elevator(new ElevatorIOTalonFX());
 
@@ -104,10 +114,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
-        // vision = new Vision(
-        // drive::addVisionMeasurement,
-        // new VisionIOPhotonVisionSim(camera0Name, robotToCamera0, drive::getPose),
-        // new VisionIOPhotonVisionSim(camera1Name, robotToCamera1, drive::getPose));
+        vision = new Vision(drive::addVisionMeasurement);
 
         elevator = new Elevator(new ElevatorIOSim());
 
@@ -125,9 +132,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        // vision = new Vision(drive::addVisionMeasurement, new VisionIO() {
-        // }, new VisionIO() {
-        // });
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         elevator = new Elevator(new ElevatorIO() {});
 
@@ -200,13 +205,8 @@ public class RobotContainer {
     // .ignoringDisable(true));
     // m_operator.L1().onTrue(new ElevatorSet(elevator, 90)).onFalse(new
     // ElevatorSet(elevator, 0));
-    // m_operator
-    // .circle()
-    // .onTrue(new InstantCommand(() -> RobotState.setMode(OperationMode.AUTO)))
-    // .onTrue(new GenerateAuto(elevator));
 
-    // m_operator.square().onTrue(new InstantCommand(() ->
-    // RobotState.setMode(OperationMode.HUMAN)));
+    m_driver.b().onTrue(new InstantCommand(() -> RobotState.setMode(OperationMode.HUMAN)));
 
     m_operator
         .cross()
@@ -240,6 +240,14 @@ public class RobotContainer {
         .whileTrue(new TakeCoral(outtake))
         .onFalse(new InstantCommand(() -> outtake.setPivotVoltage(0), outtake));
     ;
+
+    m_driver
+        .leftBumper()
+        .whileTrue(
+            new SequentialCommandGroup(
+                new InstantCommand(() -> RobotState.setMode(OperationMode.AUTO)),
+                new AutoAlign(gen)))
+        .onFalse(new InstantCommand(() -> RobotState.setMode(OperationMode.HUMAN)));
   }
 
   /**
