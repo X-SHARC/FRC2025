@@ -1,22 +1,19 @@
 package frc.robot.state;
 
-import frc.robot.util.Enums.ElevatorState;
 import frc.robot.util.Enums.GameObject;
-import frc.robot.util.Enums.Height;
 import frc.robot.util.Enums.OperationMode;
-import frc.robot.util.Enums.SideOverride;
+import frc.robot.util.Enums.Position;
 
 public class RobotState {
 
   private static RobotState instance;
 
-  private RobotState() {}
+  private RobotState() {
+  }
 
   private static OperationMode currentMode = OperationMode.HUMAN;
-  private static Height currentElevatorHeight = Height.ZERO;
-  private static ElevatorState currentElevatorState = ElevatorState.IDLE;
   private static GameObject currentGameObject = GameObject.NONE;
-  private static SideOverride currentSideOverride = SideOverride.NONE;
+  private static Position selectedPosition = Position.LEFT;
 
   /* SETTERS */
 
@@ -24,20 +21,12 @@ public class RobotState {
     currentMode = mode;
   }
 
-  public static void setElevatorHeight(Height height) {
-    currentElevatorHeight = height;
-  }
-
   public static void setGameObject(GameObject object) {
     currentGameObject = object;
   }
 
-  public static void setSideOverride(SideOverride side) {
-    currentSideOverride = side;
-  }
-
-  public static void setElevatorState(ElevatorState state) {
-    currentElevatorState = state;
+  public static void setSelectedPosition(Position position) {
+    selectedPosition = position;
   }
 
   /* GETTERS */
@@ -46,20 +35,12 @@ public class RobotState {
     return currentMode;
   }
 
-  public static Height getElevatorHeight() {
-    return currentElevatorHeight;
-  }
-
-  public static ElevatorState getElevatorState() {
-    return currentElevatorState;
-  }
-
   public static GameObject getGameObject() {
     return currentGameObject;
   }
 
-  public static SideOverride getSideOverride() {
-    return currentSideOverride;
+  public static Position getSelectedPosition() {
+    return selectedPosition;
   }
 
   public static boolean isAuto() {
@@ -70,18 +51,12 @@ public class RobotState {
     return currentGameObject != GameObject.NONE;
   }
 
-  public static void cycleSideOverride() {
-    currentSideOverride = SideOverride.cycle(currentSideOverride);
-  }
-
   /* RESET */
 
   public static void reset() {
     currentMode = OperationMode.HUMAN;
-    currentElevatorHeight = Height.ZERO;
     currentGameObject = GameObject.NONE;
-    currentSideOverride = SideOverride.NONE;
-    currentElevatorState = ElevatorState.IDLE;
+    selectedPosition = Position.LEFT;
   }
 
   public static RobotState getInstance() {

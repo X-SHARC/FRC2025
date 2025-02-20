@@ -6,6 +6,9 @@ package frc.robot.subsystems.outtake;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.state.RobotState;
+import frc.robot.util.Enums.GameObject;
+
 import org.littletonrobotics.junction.Logger;
 
 public class Outtake extends SubsystemBase {
@@ -19,10 +22,9 @@ public class Outtake extends SubsystemBase {
     this.inputs = new OuttakeIOInputsAutoLogged();
     this.disconnectedAlerts = new Alert[2];
     for (int i = 0; i < disconnectedAlerts.length; i++) {
-      disconnectedAlerts[i] =
-          new Alert(
-              "Outtake motor " + Integer.toString(i) + " is disconnected.",
-              Alert.AlertType.kWarning);
+      disconnectedAlerts[i] = new Alert(
+          "Outtake motor " + Integer.toString(i) + " is disconnected.",
+          Alert.AlertType.kWarning);
     }
   }
 
@@ -34,8 +36,14 @@ public class Outtake extends SubsystemBase {
     disconnectedAlerts[0].set(!inputs.pivotMotorConnected);
     disconnectedAlerts[1].set(!inputs.outtakeMotorConnected);
 
-    Logger.recordOutput("PosRotations", inputs.pivotAngleDegrees / 48);
     Logger.recordOutput("Outtake/beamBreak", io.isBeamBreakTriggered());
+
+    // TODO: add logic to set with limit switch for algea
+    if (io.isBeamBreakTriggered()) {
+      RobotState.setGameObject(GameObject.CORAL);
+    } else {
+      RobotState.setGameObject(GameObject.NONE);
+    }
   }
 
   public void setPivotVoltage(double voltage) {

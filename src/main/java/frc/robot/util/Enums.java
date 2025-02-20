@@ -7,7 +7,8 @@ package frc.robot.util;
 import java.util.stream.Stream;
 
 /**
- * A utility class that contains enums and helper methods for managing robot-specific constants and
+ * A utility class that contains enums and helper methods for managing
+ * robot-specific constants and
  * modes.
  */
 public class Enums {
@@ -30,11 +31,6 @@ public class Enums {
     LEFT,
     RIGHT,
     MIDDLE
-  }
-
-  public enum ElevatorState {
-    IDLE,
-    MOVING
   }
 
   /** Interface for enums with associated integer values. */
@@ -68,15 +64,6 @@ public class Enums {
     }
 
     /**
-     * Converts this {@code Side} to a {@code SideOverride}.
-     *
-     * @return the corresponding {@code SideOverride}
-     */
-    public SideOverride toSideOverride() {
-      return EnumUtils.fromValue(SideOverride.class, this.value);
-    }
-
-    /**
      * Creates a {@code Side} instance from an integer value.
      *
      * @param value the integer value
@@ -85,56 +72,6 @@ public class Enums {
      */
     public static Side fromValue(int value) {
       return EnumUtils.fromValue(Side.class, value);
-    }
-  }
-
-  /** Represents the sides of the override. */
-  public enum SideOverride implements ValueEnum {
-    NONE(0),
-    SIDE_1(1),
-    SIDE_2(2),
-    SIDE_3(3),
-    SIDE_4(4),
-    SIDE_5(5),
-    SIDE_6(6);
-
-    private final int value;
-
-    SideOverride(int value) {
-      this.value = value;
-    }
-
-    @Override
-    public int getValue() {
-      return value;
-    }
-
-    /**
-     * Converts this {@code SideOverride} to a {@code Side}.
-     *
-     * @return the corresponding {@code Side}
-     */
-    public Side toSide() {
-      return EnumUtils.fromValue(Side.class, this.value);
-    }
-
-    /**
-     * Creates a {@code SideOverride} instance from an integer value.
-     *
-     * @param value the integer value
-     * @return the corresponding {@code SideOverride}
-     * @throws IllegalArgumentException if no matching {@code SideOverride} exists
-     */
-    public static SideOverride fromValue(int value) {
-      return EnumUtils.fromValue(SideOverride.class, value);
-    }
-
-    public static SideOverride cycle(SideOverride current) {
-      if (current.ordinal() == values().length - 1) {
-        return NONE;
-      } else {
-        return values()[current.ordinal() + 1];
-      }
     }
   }
 
@@ -234,14 +171,15 @@ public class Enums {
 
   /** Utility class for working with enums that implement {@link ValueEnum}. */
   public final class EnumUtils {
-    private EnumUtils() {}
+    private EnumUtils() {
+    }
 
     /**
      * Finds an enum constant from its integer value.
      *
-     * @param <T> the type of the enum
+     * @param <T>       the type of the enum
      * @param enumClass the class of the enum
-     * @param value the integer value
+     * @param value     the integer value
      * @return the matching enum constant
      * @throws IllegalArgumentException if no matching enum constant exists
      */
@@ -250,9 +188,8 @@ public class Enums {
           .filter(e -> e.getValue() == value)
           .findFirst()
           .orElseThrow(
-              () ->
-                  new IllegalArgumentException(
-                      String.format("No %s with value: %d", enumClass.getSimpleName(), value)));
+              () -> new IllegalArgumentException(
+                  String.format("No %s with value: %d", enumClass.getSimpleName(), value)));
     }
   }
 }
