@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.state.RobotState;
 import frc.robot.util.Enums.GameObject;
-
 import org.littletonrobotics.junction.Logger;
 
 public class Outtake extends SubsystemBase {
@@ -22,9 +21,10 @@ public class Outtake extends SubsystemBase {
     this.inputs = new OuttakeIOInputsAutoLogged();
     this.disconnectedAlerts = new Alert[2];
     for (int i = 0; i < disconnectedAlerts.length; i++) {
-      disconnectedAlerts[i] = new Alert(
-          "Outtake motor " + Integer.toString(i) + " is disconnected.",
-          Alert.AlertType.kWarning);
+      disconnectedAlerts[i] =
+          new Alert(
+              "Outtake motor " + Integer.toString(i) + " is disconnected.",
+              Alert.AlertType.kWarning);
     }
   }
 

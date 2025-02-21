@@ -8,8 +8,7 @@ public class RobotState {
 
   private static RobotState instance;
 
-  private RobotState() {
-  }
+  private RobotState() {}
 
   private static OperationMode currentMode = OperationMode.HUMAN;
   private static GameObject currentGameObject = GameObject.NONE;

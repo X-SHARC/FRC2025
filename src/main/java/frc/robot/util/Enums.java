@@ -7,8 +7,7 @@ package frc.robot.util;
 import java.util.stream.Stream;
 
 /**
- * A utility class that contains enums and helper methods for managing
- * robot-specific constants and
+ * A utility class that contains enums and helper methods for managing robot-specific constants and
  * modes.
  */
 public class Enums {
@@ -171,15 +170,14 @@ public class Enums {
 
   /** Utility class for working with enums that implement {@link ValueEnum}. */
   public final class EnumUtils {
-    private EnumUtils() {
-    }
+    private EnumUtils() {}
 
     /**
      * Finds an enum constant from its integer value.
      *
-     * @param <T>       the type of the enum
+     * @param <T> the type of the enum
      * @param enumClass the class of the enum
-     * @param value     the integer value
+     * @param value the integer value
      * @return the matching enum constant
      * @throws IllegalArgumentException if no matching enum constant exists
      */
@@ -188,8 +186,9 @@ public class Enums {
           .filter(e -> e.getValue() == value)
           .findFirst()
           .orElseThrow(
-              () -> new IllegalArgumentException(
-                  String.format("No %s with value: %d", enumClass.getSimpleName(), value)));
+              () ->
+                  new IllegalArgumentException(
+                      String.format("No %s with value: %d", enumClass.getSimpleName(), value)));
     }
   }
 }
