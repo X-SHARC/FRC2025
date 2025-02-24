@@ -24,10 +24,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
 /**
- * OuttakeIOTalonFX is a subsystem that controls the outtake mechanism using
- * TalonFX motor controllers.
- * It manages the pivot and outtake motors, beam break sensor, and provides
- * methods to control and monitor the system.
+ * OuttakeIOTalonFX is a subsystem that controls the outtake mechanism using TalonFX motor
+ * controllers. It manages the pivot and outtake motors, beam break sensor, and provides methods to
+ * control and monitor the system.
  */
 public class OuttakeIOTalonFX implements OuttakeIO {
 
@@ -125,13 +124,14 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   /**
    * Updates the input values for the outtake system.
-   * 
+   *
    * @param inputs The input values to be updated.
    */
   @Override
   public void updateInputs(OuttakeIOInputs inputs) {
     // Refresh status signals and update inputs
-    StatusCode pivotStatus = BaseStatusSignal.refreshAll(pivotPosition, pivotVelocity, pivotAppliedVolts, pivotCurrent);
+    StatusCode pivotStatus =
+        BaseStatusSignal.refreshAll(pivotPosition, pivotVelocity, pivotAppliedVolts, pivotCurrent);
     StatusCode outtakeStatus = BaseStatusSignal.refreshAll(outtakeVoltage, outtakeCurrent);
 
     inputs.pivotMotorConnected = pivotConnectedDebouncer.calculate(pivotStatus.isOK());
@@ -149,7 +149,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   /**
    * Sets the voltage for the pivot motor.
-   * 
+   *
    * @param voltage The voltage to be set.
    */
   @Override
@@ -159,7 +159,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   /**
    * Sets the voltage for the outtake motor.
-   * 
+   *
    * @param voltage The voltage to be set.
    */
   @Override
@@ -170,7 +170,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   /**
    * Gets the current position of the pivot motor in degrees.
-   * 
+   *
    * @return The pivot motor position in degrees.
    */
   @Override
@@ -180,7 +180,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   /**
    * Gets the current drawn by the pivot motor.
-   * 
+   *
    * @return The pivot motor current in amps.
    */
   @Override
@@ -190,7 +190,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   /**
    * Gets the velocity of the pivot motor.
-   * 
+   *
    * @return The pivot motor velocity in radians per second.
    */
   @Override
@@ -200,7 +200,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   /**
    * Gets the current drawn by the outtake motor.
-   * 
+   *
    * @return The outtake motor current in amps.
    */
   @Override
@@ -210,7 +210,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   /**
    * Checks if the beam break sensor is triggered.
-   * 
+   *
    * @return True if the beam break sensor is triggered, false otherwise.
    */
   @Override
@@ -222,7 +222,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   /**
    * Sets the angle for the pivot motor using motion magic.
-   * 
+   *
    * @param angle The angle to be set in degrees.
    */
   @Override
@@ -234,7 +234,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   /**
    * Checks if the pivot motor is at the setpoint.
-   * 
+   *
    * @return True if the pivot motor is at the setpoint, false otherwise.
    */
   @Override
@@ -242,9 +242,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
     return (Math.abs(setpoint - this.getPivotPosition()) <= OuttakeConstants.kTolerance);
   }
 
-  /**
-   * Resets the encoder position of the pivot motor.
-   */
+  /** Resets the encoder position of the pivot motor. */
   @Override
   public void resetPivotEncoder() {
     tryUntilOk(5, () -> pivotMotor.setPosition(0.0, 0.25));

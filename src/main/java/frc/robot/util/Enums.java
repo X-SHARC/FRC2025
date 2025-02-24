@@ -133,41 +133,6 @@ public class Enums {
     }
   }
 
-  /** Represents maximum height that is avalible on a pole of the Reef. */
-  public enum PoleMaxHeight implements ValueEnum {
-    FULL(-999),
-    L1(1),
-    L2(2),
-    L3(3),
-    L4(4);
-
-    private final int value;
-
-    PoleMaxHeight(int value) {
-      this.value = value;
-    }
-
-    @Override
-    public int getValue() {
-      return value;
-    }
-
-    public Height toHeight() {
-      return EnumUtils.fromValue(Height.class, this.value);
-    }
-
-    /**
-     * Creates a {@code PoleMaxHeight} instance from an integer value.
-     *
-     * @param value the integer value
-     * @return the corresponding {@code PoleMaxHeight}
-     * @throws IllegalArgumentException if no matching {@code PoleMaxHeight} exists
-     */
-    public static PoleMaxHeight fromValue(int value) {
-      return EnumUtils.fromValue(PoleMaxHeight.class, value);
-    }
-  }
-
   /** Utility class for working with enums that implement {@link ValueEnum}. */
   public final class EnumUtils {
     private EnumUtils() {}
