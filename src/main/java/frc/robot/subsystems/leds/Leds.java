@@ -185,10 +185,12 @@ public class Leds extends VirtualSubsystem {
     solid(c1On ? c1 : c2);
   }
 
+  @SuppressWarnings("unused")
   private void strobe(Color color, double duration) {
     strobe(color, Color.kBlack, duration);
   }
 
+  @SuppressWarnings("unused")
   private void breath(Color c1, Color c2) {
     breath(c1, c2, Timer.getFPGATimestamp());
   }
@@ -231,6 +233,7 @@ public class Leds extends VirtualSubsystem {
     }
   }
 
+  @SuppressWarnings("unused")
   private void stripes(List<Color> colors, int stripeLength, double duration) {
     int offset = (int) (Timer.getFPGATimestamp() % duration / duration * stripeLength * colors.size());
     for (int i = 0; i < length; i++) {
