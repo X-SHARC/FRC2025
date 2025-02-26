@@ -16,12 +16,15 @@ public class AutoAlign extends Command {
   @Override
   public void initialize() {
     currentCommand = commandSupplier.get();
-    currentCommand.schedule();
+    // currentCommand.schedule();
   }
 
   @Override
   public void execute() {
+    currentCommand.execute();
+    System.out.println("AutoAlign.execute()");
     if (!RobotState.isAuto()) {
+      System.out.println("AutoAlign.interruptefd()");
       cancelCommand();
       end(true);
     }

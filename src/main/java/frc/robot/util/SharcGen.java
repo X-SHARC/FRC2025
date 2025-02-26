@@ -1,19 +1,19 @@
 package frc.robot.util;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.GeneratorConstants;
 import frc.robot.util.Enums.Position;
 import frc.robot.util.Enums.Side;
 import frc.robot.util.Enums.Source;
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.json.simple.parser.ParseException;
 
 public class SharcGen {
 
@@ -55,8 +55,11 @@ public class SharcGen {
   }
 
   public Pose2d getPolePose(Side side, Position position) {
-    double multiplier = position == Position.LEFT ? -.175 : .175;
     Pose2d sidePose = AllianceFlipUtil.apply(sidePoses.get(side)); // Apply AllianceFlip
+    if (position == Position.MIDDLE) {
+      return sidePose;
+    }
+    double multiplier = position == Position.LEFT ? -.175 : .175;
     double sideAngle = sidePose.getRotation().getRadians();
     return new Pose2d(
         sidePose.getX() - Math.sin(sideAngle) * multiplier,
@@ -79,20 +82,35 @@ public class SharcGen {
 
   public Command generateSidePath(Position pos) {
     Side selectedSide = selectSide();
-    String pathName = selectedSide.toString() + "_" + pos.toString();
+    Pose2d sidePoseI = AllianceFlipUtil.apply(sidePoses.get(selectedSide));
+    Pose2d sidePose = getPolePose(selectedSide, pos);
 
-    try {
-      PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
-      return AutoBuilder.pathfindThenFollowPath(path, GeneratorConstants.constraints);
-    } catch (IOException e) {
-      System.err.println("Failed to load path file: " + pathName);
-      e.printStackTrace();
-    } catch (ParseException e) {
-      System.err.println("Failed to parse path file: " + pathName);
-      e.printStackTrace();
-    }
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(sidePoseI, sidePose);
+    PathPlannerPath path =
+        new PathPlannerPath(
+            waypoints,
+            GeneratorConstants.constraints,
+            null,
+            new GoalEndState(0, sidePose.getRotation()));
 
-    return Commands.none();
+    path.preventFlipping = true; // TODO: Check if this is necessary
+    return AutoBuilder.followPath(path);
+
+    // String pathName = selectedSide.toString() + "_" + pos.toString();
+
+    // try {
+    // PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+    // return AutoBuilder.pathfindThenFollowPath(path,
+    // GeneratorConstants.constraints);
+    // } catch (IOException e) {
+    // System.err.println("Failed to load path file: " + pathName);
+    // e.printStackTrace();
+    // } catch (ParseException e) {
+    // System.err.println("Failed to parse path file: " + pathName);
+    // e.printStackTrace();
+    // }
+
+    // return Commands.none();
   }
 
   public Command generateSourcePath() {
