@@ -47,7 +47,7 @@
   "reversed": false,
   "folder": "AutoAlign",
   "idealStartingState": {
-    "velocity": 0,
+    "velocity": 3.0,
     "rotation": 120.21752558685795
   },
   "useDefaultConstraints": true

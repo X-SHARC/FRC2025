@@ -75,13 +75,14 @@ public class Leds extends VirtualSubsystem {
     leds.setLength(length);
     leds.setData(buffer);
     leds.start();
-    loadingNotifier = new Notifier(
-        () -> {
-          synchronized (this) {
-            breath(Color.kWhite, Color.kBlack, System.currentTimeMillis() / 1000.0);
-            leds.setData(buffer);
-          }
-        });
+    loadingNotifier =
+        new Notifier(
+            () -> {
+              synchronized (this) {
+                breath(Color.kWhite, Color.kBlack, System.currentTimeMillis() / 1000.0);
+                leds.setData(buffer);
+              }
+            });
     loadingNotifier.startPeriodic(0.02);
   }
 
@@ -89,9 +90,10 @@ public class Leds extends VirtualSubsystem {
     // Update alliance color
     if (DriverStation.isFMSAttached()) {
       alliance = DriverStation.getAlliance();
-      allianceColor = alliance
-          .map(alliance -> alliance == Alliance.Blue ? Color.kBlue : Color.kRed)
-          .orElse(Color.kGold);
+      allianceColor =
+          alliance
+              .map(alliance -> alliance == Alliance.Blue ? Color.kBlue : Color.kRed)
+              .orElse(Color.kGold);
       secondaryDisabledColor = alliance.isPresent() ? Color.kBlack : Color.kDarkBlue;
 
       if (loadingNotifier != null) {
@@ -235,9 +237,11 @@ public class Leds extends VirtualSubsystem {
 
   @SuppressWarnings("unused")
   private void stripes(List<Color> colors, int stripeLength, double duration) {
-    int offset = (int) (Timer.getFPGATimestamp() % duration / duration * stripeLength * colors.size());
+    int offset =
+        (int) (Timer.getFPGATimestamp() % duration / duration * stripeLength * colors.size());
     for (int i = 0; i < length; i++) {
-      int colorIndex = (int) (Math.floor((double) (i - offset) / stripeLength) + colors.size()) % colors.size();
+      int colorIndex =
+          (int) (Math.floor((double) (i - offset) / stripeLength) + colors.size()) % colors.size();
       colorIndex = colors.size() - 1 - colorIndex;
       buffer.setLED(i, colors.get(colorIndex));
     }
