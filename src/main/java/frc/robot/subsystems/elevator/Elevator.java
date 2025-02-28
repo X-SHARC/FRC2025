@@ -23,9 +23,8 @@ public class Elevator extends SubsystemBase {
     this.inputs = new ElevatorIOInputsAutoLogged();
     this.disconnectedAlerts = new Alert[2];
     for (int i = 0; i < disconnectedAlerts.length; i++) {
-      disconnectedAlerts[i] =
-          new Alert(
-              "Elevator motor " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
+      disconnectedAlerts[i] = new Alert(
+          "Elevator motor " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
   }
 

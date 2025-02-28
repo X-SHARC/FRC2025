@@ -3,13 +3,15 @@ package frc.robot.state;
 import frc.robot.util.Enums.GameObject;
 import frc.robot.util.Enums.OperationMode;
 import frc.robot.util.Enums.Position;
-import org.littletonrobotics.junction.Logger;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class RobotState {
 
   private static RobotState instance;
 
-  private RobotState() {}
+  private RobotState() {
+  }
 
   private static OperationMode currentMode = OperationMode.HUMAN;
   private static GameObject currentGameObject = GameObject.NONE;
@@ -36,24 +38,28 @@ public class RobotState {
 
   /* GETTERS */
 
+  @AutoLogOutput(key = "RobotState/OperationMode")
   public static OperationMode getMode() {
     return currentMode;
   }
 
+  @AutoLogOutput(key = "RobotState/GameObject")
   public static GameObject getGameObject() {
     return currentGameObject;
   }
 
+  @AutoLogOutput(key = "RobotState/SelectedBranchPosition")
   public static Position getSelectedPosition() {
     return selectedPosition;
   }
 
+  @AutoLogOutput(key = "RobotState/ElevatorHeight")
   public static double getElevatorHeight() {
     return elevatorHeight;
   }
 
+  @AutoLogOutput(key = "RobotState/ElevatorHeightSpeedMultiplier")
   public static double getSpeedMultiplier() {
-    Logger.recordOutput("speedmult", (1 - elevatorHeight));
     return (1 - elevatorHeight);
   }
 

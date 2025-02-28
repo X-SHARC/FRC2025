@@ -13,47 +13,34 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.state.RobotState;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.TargetSelector;
 import org.littletonrobotics.junction.Logger;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AutoAlign extends Command {
 
-  private Drive drive;
-  private Pose2d currentPose = new Pose2d();
-  private Pose2d targetPose = new Pose2d();
-
-  // Constants
-  private static final double ANGLE_KP = 4;
-  private static final double ANGLE_KD = 0.2;
+  private static final double ANGLE_KP = 5.0;
+  private static final double ANGLE_KD = 0.4;
   private static final double ANGLE_MAX_VELOCITY = 8.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
-  private static final double XY_KP = 0.1; // 0.325
-  private static final double XY_KD = 0.1;
-  private static final double XY_MAX_VELOCITY = 4;
-  private static final double XY_MAX_ACCELERATION = 4;
-  private static final double ANGLE_TOLERANCE = Math.toRadians(5); // rad
-  private static final double XY_TOLERANCE = 0.05; // m
+  private static final double ANGLE_TOLERANCE = Math.toRadians(3); // Radians
+  private static final double XY_KP = 0.25;
+  private static final double XY_KD = 0.01;
+  private static final double XY_TOLERANCE = 0.05; // Meters
 
-  // Controllers
+  private Drive drive;
+  private Pose2d targetPose = new Pose2d();
+  private Pose2d currPose = new Pose2d();
+
   ProfiledPIDController angleController = new ProfiledPIDController(
       ANGLE_KP,
       0.0,
       ANGLE_KD,
       new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
 
-  PIDController xController = new PIDController(
-      XY_KP,
-      0.0,
-      XY_KD);
+  PIDController xController = new PIDController(XY_KP, 0, XY_KD);
+  PIDController yController = new PIDController(XY_KP, 0, XY_KD);
 
-  PIDController yController = new PIDController(
-      XY_KP,
-      0.0,
-      XY_KD);
-
-  /** Creates a new AutoAlign. */
   public AutoAlign(Drive drive) {
     this.drive = drive;
     addRequirements(drive);
@@ -64,48 +51,49 @@ public class AutoAlign extends Command {
   public void initialize() {
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
-    currentPose = drive.getPose();
-    targetPose = TargetSelector.getNearestBranch(RobotState.getSelectedPosition());
-
-    angleController.reset(currentPose.getRotation().getRadians());
-
+    angleController.setTolerance(ANGLE_TOLERANCE);
     xController.setTolerance(XY_TOLERANCE);
     yController.setTolerance(XY_TOLERANCE);
-    angleController.setTolerance(ANGLE_TOLERANCE);
+
+    currPose = drive.getPose();
+    targetPose = TargetSelector.getNearestBranch(RobotState.getSelectedPosition());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    currentPose = drive.getPose();
-    targetPose = AllianceFlipUtil.apply(TargetSelector.getNearestBranch(RobotState.getSelectedPosition()));
+    currPose = drive.getPose();
+    targetPose = TargetSelector.getNearestBranch(RobotState.getSelectedPosition());
 
-    Logger.recordOutput("AutoAlign/TargetPose", targetPose);
-
+    // Get linear velocity
     Translation2d linearVelocity = new Translation2d(
-        xController.calculate(currentPose.getX(), targetPose.getX()),
-        yController.calculate(currentPose.getY(), targetPose.getY()));
-
+        xController.calculate(currPose.getX(), targetPose.getX()),
+        yController.calculate(currPose.getY(), targetPose.getY()));
+    Logger.recordOutput("AutoAlign/Calculated Velocities", linearVelocity);
+    // Calculate angular speed
     double omega = angleController.calculate(
         drive.getRotation().getRadians(), targetPose.getRotation().getRadians());
 
+    // Convert to field relative speeds & send command
     ChassisSpeeds speeds = new ChassisSpeeds(
         linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
         linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-        omega * drive.getMaxAngularSpeedRadPerSec());
+        omega);
+    Logger.recordOutput("AutoAlign/Chassis Speeds", speeds);
 
-    drive.runVelocity(speeds);
+    drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, drive.getRotation()));
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    drive.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (xController.atSetpoint() && yController.atSetpoint() && angleController.atGoal())
+    return (angleController.atSetpoint() && xController.atSetpoint() && yController.atSetpoint())
         || !RobotState.isAuto();
   }
 }

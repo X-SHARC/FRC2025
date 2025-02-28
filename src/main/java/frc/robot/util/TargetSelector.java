@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.Constants;
+import frc.robot.state.RobotState;
 import frc.robot.util.Enums.Position;
 import org.littletonrobotics.junction.Logger;
 
@@ -34,7 +35,7 @@ public class TargetSelector {
   }
 
   private static void updateNearestSide() {
-    currentClosestSide = currentBotPose.nearest(Constants.FieldConstants.SIDEPOSE_LIST);
+    currentClosestSide = AllianceFlipUtil.apply(currentBotPose.nearest(Constants.FieldConstants.SIDEPOSE_LIST));
   }
 
   public static Pose2d getNearestSide() {
@@ -58,7 +59,9 @@ public class TargetSelector {
     updateNearestSide();
     updateNearestSource();
     Logger.recordOutput("TargetSelector/Current Closest Side", currentClosestSide);
-    Logger.recordOutput("TargetSelector/Current Closest Branch", getNearestBranch(Position.LEFT));
+    Logger.recordOutput(
+        "TargetSelector/Current Closest Branch",
+        getNearestBranch(RobotState.getSelectedPosition()));
   }
 
   public static TargetSelector getInstance() {
