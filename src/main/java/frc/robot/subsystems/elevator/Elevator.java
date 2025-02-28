@@ -4,11 +4,10 @@
 
 package frc.robot.subsystems.elevator;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.state.RobotState;
 import org.littletonrobotics.junction.Logger;
 
 // the elevatortalonfx doesn't override isAtSetpoint bc it works with motionmagic
@@ -34,6 +33,7 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
+    RobotState.setElevatorHeight(getPosition());
 
     disconnectedAlerts[0].set(!inputs.masterMotorConnected);
     disconnectedAlerts[1].set(!inputs.slaveMotorConnected);
@@ -41,10 +41,13 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void simulationPeriodic() {
-    Logger.recordOutput(
-        "Elevator/Pose/FirstPose3D", new Pose3d(0, 0, getPosition(), new Rotation3d()));
-    Logger.recordOutput(
-        "Elevator/Pose/CarriagePose3D", new Pose3d(0, 0, getPosition() * 1.8, new Rotation3d()));
+    // -- Sim
+    // Logger.recordOutput(
+    // "Elevator/Pose/FirstPose3D", new Pose3d(0, 0, getPosition(), new
+    // Rotation3d()));
+    // Logger.recordOutput(
+    // "Elevator/Pose/CarriagePose3D", new Pose3d(0, 0, getPosition() * 1.8, new
+    // Rotation3d()));
   }
 
   public void setVoltage(double voltage) {

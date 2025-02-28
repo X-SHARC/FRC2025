@@ -76,8 +76,8 @@ public final class Constants {
         Map.of(
             Height.ZERO, 0,
             Height.L1, 0.05,
-            Height.L2, 0.12,
-            Height.L3, 0.30,
-            Height.L4, 0.65);
+            Height.L2, 0.15,
+            Height.L3, 0.35,
+            Height.L4, 0.67);
   }
 }

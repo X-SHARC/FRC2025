@@ -5,7 +5,7 @@ import com.pathplanner.lib.config.PIDConstants;
 public final class ElevatorConstants {
   public static final int masterMotorPort = 13;
   public static final int slaveMotorPort = 14;
-  public static final double kGearRatio = 7; // 10 for sim
+  public static final double kGearRatio = 7;
 
   public static final PIDConstants kSimPIDConstants = new PIDConstants(0.015, 0, 0);
 

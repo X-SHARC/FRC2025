@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.state.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -36,6 +37,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
@@ -83,16 +85,18 @@ public class DriveCommands {
 
           // Square rotation value for more precise control
           omega = Math.copySign(omega * omega, omega);
-
+          Logger.recordOutput("aa", RobotState.getSpeedMultiplier());
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
               new ChassisSpeeds(
                   linearVelocity.getX()
                       * drive.getMaxLinearSpeedMetersPerSec()
-                      * Constants.speedMultiplier,
+                      * Constants.speedMultiplier
+                      * RobotState.getSpeedMultiplier(),
                   linearVelocity.getY()
                       * drive.getMaxLinearSpeedMetersPerSec()
-                      * Constants.speedMultiplier,
+                      * Constants.speedMultiplier
+                      * RobotState.getSpeedMultiplier(),
                   omega * drive.getMaxAngularSpeedRadPerSec() * Constants.speedMultiplier);
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()

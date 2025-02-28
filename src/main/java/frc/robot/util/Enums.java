@@ -108,7 +108,9 @@ public class Enums {
     L1(1),
     L2(2),
     L3(3),
-    L4(4);
+    L4(4),
+    ALGEA_HIGH(5),
+    ALGEA_LOW(6);
 
     private final int value;
 
