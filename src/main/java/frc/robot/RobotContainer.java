@@ -18,12 +18,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.Align;
+import frc.robot.commands.AutoAlign;
 import frc.robot.commands.BaseCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -38,7 +38,6 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
-import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.outtake.Outtake;
 import frc.robot.subsystems.outtake.OuttakeIO;
 import frc.robot.subsystems.outtake.OuttakeIOTalonFX;
@@ -48,7 +47,6 @@ import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.Enums.Height;
 import frc.robot.util.Enums.OperationMode;
 import frc.robot.util.Enums.Position;
-import frc.robot.util.TargetSelector;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -68,12 +66,11 @@ public class RobotContainer {
   private final Elevator elevator;
 
   private final Outtake outtake;
-  private final Leds leds = Leds.getInstance();
-
-  TargetSelector targetSelector = new TargetSelector();
 
   // Controller
+  @SuppressWarnings("unused")
   private final CommandXboxController m_driver = new CommandXboxController(0);
+
   private final CommandPS4Controller m_operator = new CommandPS4Controller(1);
 
   // Dashboard inputs
@@ -87,7 +84,6 @@ public class RobotContainer {
         // Real robot, instantiate hardware IO implementations
         drive =
             new Drive(
-                targetSelector,
                 new GyroIOPigeon2(),
                 new ModuleIOTalonFX(TunerConstants.FrontLeft),
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
@@ -109,7 +105,6 @@ public class RobotContainer {
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
-                targetSelector,
                 new GyroIO() {},
                 new ModuleIOSim(TunerConstants.FrontLeft),
                 new ModuleIOSim(TunerConstants.FrontRight),
@@ -128,7 +123,6 @@ public class RobotContainer {
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
-                targetSelector,
                 new GyroIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
@@ -183,19 +177,28 @@ public class RobotContainer {
             () -> -m_operator.getLeftX(),
             () -> -m_operator.getRightX()));
 
-    m_driver.b().onTrue(new InstantCommand(() -> RobotState.setMode(OperationMode.HUMAN)));
+    // Reset the gyro and encoders
 
+    m_operator.L3().onTrue(new InstantCommand(() -> elevator.resetEncoders(), elevator));
+
+    m_operator.options().onTrue(new InstantCommand(() -> drive.resetYaw(), drive));
+
+    // Intake/ outtake control
+
+    m_operator.L1().whileTrue(BaseCommands.intakeCoral(outtake));
+
+    m_operator.R1().whileTrue(BaseCommands.outCoral(outtake));
+
+    m_operator.R2().whileTrue(BaseCommands.outAlgea(outtake));
+
+    // Set the elevator height based on the cross, circle, and triangle buttons
     m_operator
         .cross()
-        // .onTrue(Commands.startEnd(() -> leds.demoMode = true, () -> leds.demoMode =
-        // true));
         .whileTrue(BaseCommands.homeElevator(elevator, outtake))
         .onFalse(new InstantCommand(() -> elevator.stop(), elevator));
 
     m_operator
         .square()
-        // .onTrue(Commands.startEnd(() -> leds.hasCoral = true, () -> leds.hasCoral =
-        // true));
         .whileTrue(BaseCommands.setHeight(elevator, outtake, Height.L2))
         .onFalse(BaseCommands.setPivot(outtake, 0));
 
@@ -207,18 +210,11 @@ public class RobotContainer {
     m_operator
         .triangle()
         .whileTrue(BaseCommands.setHeight(elevator, outtake, Height.L4))
-        .onFalse(BaseCommands.setPivot(outtake, -2.5));
+        .onFalse(BaseCommands.setPivot(outtake, 0));
 
-    m_operator.L3().onTrue(new InstantCommand(() -> elevator.resetEncoders(), elevator));
-
-    m_operator.L1().whileTrue(BaseCommands.intakeCoral(outtake));
-
-    m_operator.R1().whileTrue(BaseCommands.outCoral(outtake));
-
-    m_operator.options().onTrue(new InstantCommand(() -> drive.resetYaw(), drive));
-
+    // Set the selected position based on the D-Pad
     m_operator
-        .R3()
+        .povUp()
         .onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.MIDDLE)));
     m_operator
         .povLeft()
@@ -226,25 +222,15 @@ public class RobotContainer {
     m_operator
         .povRight()
         .onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.RIGHT)));
-    // m_operator
-    // .R2()
-    // .whileTrue(new RunCommand(() -> outtake.setOuttakeVoltage(-5), outtake))
-    // .onFalse(new InstantCommand(() -> outtake.stop(), outtake));
 
-    // m_driver
-    // .leftTrigger()
-    // .whileTrue(new RunCommand(() -> outtake.setPivotAngle(0), outtake))
-    // .onFalse(new InstantCommand(() -> outtake.setPivotVoltage(0), outtake));
-
+    // Auto-align
     m_operator
         .L2()
         .whileTrue(
-            new SequentialCommandGroup(
+            Commands.sequence(
                 new InstantCommand(() -> RobotState.setMode(OperationMode.AUTO)),
-                new Align(drive, targetSelector)))
+                new AutoAlign(drive)))
         .onFalse(new InstantCommand(() -> RobotState.setMode(OperationMode.HUMAN)));
-
-    m_operator.R2().whileTrue(BaseCommands.manipulateObject(outtake, 5, 0, () -> false));
   }
 
   /**
