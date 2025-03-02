@@ -1,9 +1,9 @@
 package frc.robot.state;
 
 import frc.robot.util.Enums.GameObject;
+import frc.robot.util.Enums.Height;
 import frc.robot.util.Enums.OperationMode;
 import frc.robot.util.Enums.Position;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 
 public class RobotState {
@@ -16,6 +16,7 @@ public class RobotState {
   private static OperationMode currentMode = OperationMode.HUMAN;
   private static GameObject currentGameObject = GameObject.NONE;
   private static Position selectedPosition = Position.LEFT;
+  private static Height selectedElevatorHeight = Height.ZERO;
   private static double elevatorHeight = 0.0;
 
   /* SETTERS */
@@ -30,6 +31,10 @@ public class RobotState {
 
   public static void setSelectedPosition(Position position) {
     selectedPosition = position;
+  }
+
+  public static void setSelectedElevatorHeight(Height height) {
+    selectedElevatorHeight = height;
   }
 
   public static void setElevatorHeight(double height) {
@@ -63,6 +68,11 @@ public class RobotState {
     return (1 - elevatorHeight);
   }
 
+  @AutoLogOutput(key = "RobotState/SelectedElevatorHeight")
+  public static Height getSelectedElevatorHeight() {
+    return selectedElevatorHeight;
+  }
+
   public static boolean isAuto() {
     return currentMode == OperationMode.AUTO;
   }
@@ -78,6 +88,7 @@ public class RobotState {
     currentGameObject = GameObject.NONE;
     selectedPosition = Position.LEFT;
     elevatorHeight = 0.0;
+    selectedElevatorHeight = Height.ZERO;
   }
 
   public static RobotState getInstance() {

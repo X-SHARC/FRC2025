@@ -105,17 +105,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
-    StatusCode masterStatus =
-        BaseStatusSignal.refreshAll(
-            masterPosition, masterVelocity, masterAppliedVolts, masterCurrent);
+    StatusCode masterStatus = BaseStatusSignal.refreshAll(
+        masterPosition, masterVelocity, masterAppliedVolts, masterCurrent);
 
-    StatusCode slaveStatus =
-        BaseStatusSignal.refreshAll(slavePosition, slaveVelocity, slaveAppliedVolts, slaveCurrent);
+    StatusCode slaveStatus = BaseStatusSignal.refreshAll(slavePosition, slaveVelocity, slaveAppliedVolts, slaveCurrent);
 
     inputs.masterMotorConnected = masterConnectedDebouncer.calculate(masterStatus.isOK());
     inputs.masterMotorPositionRad = Units.rotationsToRadians(masterPosition.getValueAsDouble());
-    inputs.masterMotorVelocityRadPerSec =
-        Units.rotationsToRadians(masterVelocity.getValueAsDouble());
+    inputs.masterMotorVelocityRadPerSec = Units.rotationsToRadians(masterVelocity.getValueAsDouble());
     inputs.masterMotorAppliedVolts = masterAppliedVolts.getValueAsDouble();
     inputs.masterMotorCurrentAmps = masterCurrent.getValueAsDouble();
 
@@ -125,14 +122,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.slaveMotorAppliedVolts = slaveAppliedVolts.getValueAsDouble();
     inputs.slaveMotorCurrentAmps = slaveCurrent.getValueAsDouble();
 
-    inputs.elevatorPositionMeters =
-        inputs.masterMotorPositionRad * ElevatorConstants.drumRadius / ElevatorConstants.kGearRatio;
-    inputs.elevatorVelocityMetersPerSec =
-        inputs.masterMotorVelocityRadPerSec
-            * ElevatorConstants.drumRadius
-            / ElevatorConstants.kGearRatio;
-    inputs.elevatorCurrentAmps =
-        Math.abs(inputs.masterMotorCurrentAmps) + Math.abs(inputs.slaveMotorCurrentAmps);
+    inputs.elevatorPositionMeters = inputs.masterMotorPositionRad * ElevatorConstants.drumRadius
+        / ElevatorConstants.kGearRatio;
+    inputs.elevatorVelocityMetersPerSec = inputs.masterMotorVelocityRadPerSec
+        * ElevatorConstants.drumRadius
+        / ElevatorConstants.kGearRatio;
+    inputs.elevatorCurrentAmps = Math.abs(inputs.masterMotorCurrentAmps) + Math.abs(inputs.slaveMotorCurrentAmps);
   }
 
   @Override
@@ -176,8 +171,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public void setHeight(double meters) {
     setpoint = meters;
-    double rotations =
-        meters * ElevatorConstants.kGearRatio / (ElevatorConstants.drumRadius * 2 * Math.PI);
+    double rotations = meters * ElevatorConstants.kGearRatio / (ElevatorConstants.drumRadius * 2 * Math.PI);
     masterMotor.setControl(motionMagicRequest.withPosition(rotations));
   }
 }

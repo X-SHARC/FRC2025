@@ -9,7 +9,7 @@ public final class ElevatorConstants {
 
   public static final PIDConstants kSimPIDConstants = new PIDConstants(0.015, 0, 0);
 
-  public static final double kTolerance = 1; // cm
+  public static final double kTolerance = 0.01; // meters
 
   public static final double drumRadius = 0.02432; // meters
   public static final double maxHeight = 80;

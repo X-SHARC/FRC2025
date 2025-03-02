@@ -53,7 +53,7 @@ public class Leds extends VirtualSubsystem {
   private static final double waveFastDuration = 0.25;
 
   private Leds() {
-    leds = new AddressableLED(3);
+    leds = new AddressableLED(1);
     buffer = new AddressableLEDBuffer(length);
     leds.setLength(length);
     leds.setData(buffer);

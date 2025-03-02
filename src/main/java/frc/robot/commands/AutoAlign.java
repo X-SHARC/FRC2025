@@ -19,24 +19,25 @@ import org.littletonrobotics.junction.Logger;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class AutoAlign extends Command {
 
-  private static final double ANGLE_KP = 5.0;
+  private static final double ANGLE_KP = 5.5;
   private static final double ANGLE_KD = 0.4;
   private static final double ANGLE_MAX_VELOCITY = 8.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
-  private static final double ANGLE_TOLERANCE = Math.toRadians(3); // Radians
-  private static final double XY_KP = 0.25;
-  private static final double XY_KD = 0.01;
+  private static final double ANGLE_TOLERANCE = Math.toRadians(1); // Radians
+  private static final double XY_KP = 0.8;
+  private static final double XY_KD = 0.075;
   private static final double XY_TOLERANCE = 0.05; // Meters
 
   private Drive drive;
   private Pose2d targetPose = new Pose2d();
   private Pose2d currPose = new Pose2d();
 
-  ProfiledPIDController angleController = new ProfiledPIDController(
-      ANGLE_KP,
-      0.0,
-      ANGLE_KD,
-      new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+  ProfiledPIDController angleController =
+      new ProfiledPIDController(
+          ANGLE_KP,
+          0.0,
+          ANGLE_KD,
+          new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
 
   PIDController xController = new PIDController(XY_KP, 0, XY_KD);
   PIDController yController = new PIDController(XY_KP, 0, XY_KD);
@@ -66,19 +67,22 @@ public class AutoAlign extends Command {
     targetPose = TargetSelector.getNearestBranch(RobotState.getSelectedPosition());
 
     // Get linear velocity
-    Translation2d linearVelocity = new Translation2d(
-        xController.calculate(currPose.getX(), targetPose.getX()),
-        yController.calculate(currPose.getY(), targetPose.getY()));
+    Translation2d linearVelocity =
+        new Translation2d(
+            xController.calculate(currPose.getX(), targetPose.getX()),
+            yController.calculate(currPose.getY(), targetPose.getY()));
     Logger.recordOutput("AutoAlign/Calculated Velocities", linearVelocity);
     // Calculate angular speed
-    double omega = angleController.calculate(
-        drive.getRotation().getRadians(), targetPose.getRotation().getRadians());
+    double omega =
+        angleController.calculate(
+            drive.getRotation().getRadians(), targetPose.getRotation().getRadians());
 
     // Convert to field relative speeds & send command
-    ChassisSpeeds speeds = new ChassisSpeeds(
-        linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-        linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-        omega);
+    ChassisSpeeds speeds =
+        new ChassisSpeeds(
+            linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+            linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+            omega);
     Logger.recordOutput("AutoAlign/Chassis Speeds", speeds);
 
     drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, drive.getRotation()));

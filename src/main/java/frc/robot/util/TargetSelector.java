@@ -13,8 +13,7 @@ public class TargetSelector {
   private static Pose2d currentClosestSide = new Pose2d();
   private static Pose2d currentClosestSource = new Pose2d();
 
-  private TargetSelector() {
-  }
+  private TargetSelector() {}
 
   private static Pose2d getBranchPose(Position branchPosition, Pose2d sidePose) {
     Pose2d flippedPose = sidePose;
@@ -35,7 +34,8 @@ public class TargetSelector {
   }
 
   private static void updateNearestSide() {
-    currentClosestSide = AllianceFlipUtil.apply(currentBotPose.nearest(Constants.FieldConstants.SIDEPOSE_LIST));
+    currentClosestSide =
+        AllianceFlipUtil.apply(currentBotPose.nearest(Constants.FieldConstants.SIDEPOSE_LIST));
   }
 
   public static Pose2d getNearestSide() {
@@ -70,4 +70,5 @@ public class TargetSelector {
     }
     return instance;
   }
-};
+}
+;
