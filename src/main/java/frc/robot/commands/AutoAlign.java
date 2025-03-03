@@ -26,7 +26,7 @@ public class AutoAlign extends Command {
   private static final double ANGLE_TOLERANCE = Math.toRadians(1); // Radians
   private static final double XY_KP = 0.8;
   private static final double XY_KD = 0.075;
-  private static final double XY_TOLERANCE = 0.05; // Meters
+  private static final double XY_TOLERANCE = 0.025; // Meters
 
   private Drive drive;
   private Pose2d targetPose = new Pose2d();

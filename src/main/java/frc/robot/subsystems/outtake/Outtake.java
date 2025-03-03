@@ -25,9 +25,10 @@ public class Outtake extends SubsystemBase {
     this.inputs = new OuttakeIOInputsAutoLogged();
     this.disconnectedAlerts = new Alert[2];
     for (int i = 0; i < disconnectedAlerts.length; i++) {
-      disconnectedAlerts[i] = new Alert(
-          "Outtake motor " + Integer.toString(i) + " is disconnected.",
-          Alert.AlertType.kWarning);
+      disconnectedAlerts[i] =
+          new Alert(
+              "Outtake motor " + Integer.toString(i) + " is disconnected.",
+              Alert.AlertType.kWarning);
     }
   }
 
@@ -135,9 +136,7 @@ public class Outtake extends SubsystemBase {
     io.resetPivotEncoder();
   }
 
-  /**
-   * Stops both the pivot and outtake motors by setting their voltages to zero.
-   */
+  /** Stops both the pivot and outtake motors by setting their voltages to zero. */
   public void stop() {
     setPivotVoltage(0);
     setOuttakeVoltage(0);

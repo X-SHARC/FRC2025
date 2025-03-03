@@ -14,6 +14,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -23,10 +24,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.AdvancedCommands;
-import frc.robot.commands.AutoAlign;
+import frc.robot.commands.AutonomousCommands;
 import frc.robot.commands.BaseCommands;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.DriveToPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.state.RobotState;
 import frc.robot.subsystems.drive.Drive;
@@ -49,6 +50,7 @@ import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.Enums.Height;
 import frc.robot.util.Enums.OperationMode;
 import frc.robot.util.Enums.Position;
+import frc.robot.util.TargetSelector;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -62,296 +64,301 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
 
-        // Subsystems
-        private final Drive drive;
+    // Subsystems
+    private final Drive drive;
 
-        @SuppressWarnings("unused")
-        private final Vision vision;
+    @SuppressWarnings("unused")
+    private final Vision vision;
 
-        @SuppressWarnings("unused")
-        private final Leds leds = Leds.getInstance();
+    @SuppressWarnings("unused")
+    private final Leds leds = Leds.getInstance();
 
-        private final Elevator elevator;
+    private final Elevator elevator;
 
-        private final Outtake outtake;
+    private final Outtake outtake;
 
-        // Controller
-        private final CommandXboxController m_driver = new CommandXboxController(0);
+    // Controller
+    private final CommandXboxController m_driver = new CommandXboxController(0);
 
-        private final CommandPS4Controller m_operator = new CommandPS4Controller(1);
+    private final CommandPS4Controller m_operator = new CommandPS4Controller(1);
 
-        // Dashboard inputs
-        private final LoggedDashboardChooser<Command> autoChooser;
+    // Dashboard inputs
+    private final LoggedDashboardChooser<Command> autoChooser;
 
-        /**
-         * The container for the robot. Contains subsystems, OI devices, and commands.
-         */
-        public RobotContainer() {
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
 
-                switch (Constants.currentMode) {
-                        case REAL:
-                                // Real robot, instantiate hardware IO implementations
-                                drive = new Drive(
-                                                new GyroIOPigeon2(),
-                                                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                                                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                                                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                                                new ModuleIOTalonFX(TunerConstants.BackRight));
+        switch (Constants.currentMode) {
+            case REAL:
+                // Real robot, instantiate hardware IO implementations
+                drive = new Drive(
+                        new GyroIOPigeon2(),
+                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                        new ModuleIOTalonFX(TunerConstants.FrontRight),
+                        new ModuleIOTalonFX(TunerConstants.BackLeft),
+                        new ModuleIOTalonFX(TunerConstants.BackRight));
 
-                                vision = new Vision(
-                                                drive::addVisionMeasurement,
-                                                new VisionIOLimelight("limelight-sharc", drive::getRotation));
+                vision = new Vision(
+                        drive::addVisionMeasurement,
+                        new VisionIOLimelight("limelight-sharc", drive::getRotation));
 
-                                elevator = new Elevator(new ElevatorIOTalonFX());
+                elevator = new Elevator(new ElevatorIOTalonFX());
 
-                                outtake = new Outtake(new OuttakeIOTalonFX());
+                outtake = new Outtake(new OuttakeIOTalonFX());
 
-                                break;
+                break;
 
-                        case SIM:
-                                // Sim robot, instantiate physics sim IO implementations
-                                drive = new Drive(
-                                                new GyroIO() {
-                                                },
-                                                new ModuleIOSim(TunerConstants.FrontLeft),
-                                                new ModuleIOSim(TunerConstants.FrontRight),
-                                                new ModuleIOSim(TunerConstants.BackLeft),
-                                                new ModuleIOSim(TunerConstants.BackRight));
+            case SIM:
+                // Sim robot, instantiate physics sim IO implementations
+                drive = new Drive(
+                        new GyroIO() {
+                        },
+                        new ModuleIOSim(TunerConstants.FrontLeft),
+                        new ModuleIOSim(TunerConstants.FrontRight),
+                        new ModuleIOSim(TunerConstants.BackLeft),
+                        new ModuleIOSim(TunerConstants.BackRight));
 
-                                vision = new Vision(drive::addVisionMeasurement);
+                vision = new Vision(drive::addVisionMeasurement);
 
-                                elevator = new Elevator(new ElevatorIOSim());
+                elevator = new Elevator(new ElevatorIOSim());
 
-                                // isn't simulated
-                                outtake = new Outtake(new OuttakeIO() {
-                                });
-                                break;
+                // isn't simulated
+                outtake = new Outtake(new OuttakeIO() {
+                });
+                break;
 
-                        default:
-                                // Replayed robot, disable IO implementations
-                                drive = new Drive(
-                                                new GyroIO() {
-                                                },
-                                                new ModuleIO() {
-                                                },
-                                                new ModuleIO() {
-                                                },
-                                                new ModuleIO() {
-                                                },
-                                                new ModuleIO() {
-                                                });
+            default:
+                // Replayed robot, disable IO implementations
+                drive = new Drive(
+                        new GyroIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        },
+                        new ModuleIO() {
+                        });
 
-                                vision = new Vision(drive::addVisionMeasurement, new VisionIO() {
-                                }, new VisionIO() {
-                                });
+                vision = new Vision(drive::addVisionMeasurement, new VisionIO() {
+                }, new VisionIO() {
+                });
 
-                                elevator = new Elevator(new ElevatorIO() {
-                                });
+                elevator = new Elevator(new ElevatorIO() {
+                });
 
-                                outtake = new Outtake(new OuttakeIO() {
-                                });
+                outtake = new Outtake(new OuttakeIO() {
+                });
 
-                                break;
-                }
-
-                // Set up auto routines
-                autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-                // Set up SysId routines
-                autoChooser.addOption(
-                                "Drive Wheel Radius Characterization",
-                                DriveCommands.wheelRadiusCharacterization(drive));
-                autoChooser.addOption(
-                                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-                autoChooser.addOption(
-                                "Drive SysId (Quasistatic Forward)",
-                                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-                autoChooser.addOption(
-                                "Drive SysId (Quasistatic Reverse)",
-                                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-                autoChooser.addOption(
-                                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-                autoChooser.addOption(
-                                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-                // Configure the button bindings
-                configureButtonBindings();
-                DriverStation.silenceJoystickConnectionWarning(true);
+                break;
         }
 
-        /**
-         * Use this method to define your button->command mappings. Buttons can be
-         * created by
-         * instantiating a {@link GenericHID} or one of its subclasses ({@link
-         * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
-         * it to a {@link
-         * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-         */
-        private void configureButtonBindings() {
-                doubleDriverConfig();
-        }
+        NamedCommands.registerCommand("CoralIn", BaseCommands.intakeCoral(outtake));
+        NamedCommands.registerCommand(
+                "CoralOut",
+                BaseCommands.manipulateObject(outtake, 10, 0, () -> !outtake.isBeamBreakTriggered()));
+        NamedCommands.registerCommand("ElevatorHome", BaseCommands.homeElevator(elevator, outtake));
+        NamedCommands.registerCommand(
+                "ElevatorL2", AutonomousCommands.autonomousHeight(elevator, outtake, Height.L2));
+        NamedCommands.registerCommand(
+                "ElevatorL3", AutonomousCommands.autonomousHeight(elevator, outtake, Height.L3));
+        NamedCommands.registerCommand(
+                "ElevatorL4", AutonomousCommands.autonomousHeight(elevator, outtake, Height.L4));
 
-        private void doubleDriverConfig() {
+        // Set up auto routines
+        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
-                // Default command, normal field-relative drive
-                drive.setDefaultCommand(
-                                DriveCommands.joystickDrive(
-                                                drive,
-                                                () -> -m_driver.getLeftY(),
-                                                () -> -m_driver.getLeftX(),
-                                                () -> -m_driver.getRightX()));
+        // Set up SysId routines
+        autoChooser.addOption(
+                "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+        autoChooser.addOption(
+                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Forward)",
+                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Reverse)",
+                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-                m_driver
-                                .leftBumper()
-                                .whileTrue(
-                                                Commands.sequence(
-                                                                new InstantCommand(() -> RobotState
-                                                                                .setMode(OperationMode.AUTO)),
-                                                                new AutoAlign(drive)))
-                                .onFalse(new InstantCommand(() -> RobotState.setMode(OperationMode.HUMAN)));
+        // Configure the button bindings
+        configureButtonBindings();
+        DriverStation.silenceJoystickConnectionWarning(true);
+    }
 
-                m_driver
-                                .rightBumper()
-                                .whileTrue(AdvancedCommands.autoElevatorAndManipulate(elevator, outtake));
+    /**
+     * Use this method to define your button->command mappings. Buttons can be
+     * created by
+     * instantiating a {@link GenericHID} or one of its subclasses ({@link
+     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
+     * it to a {@link
+     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     */
+    private void configureButtonBindings() {
+        doubleDriverConfig();
+        // singleDriverConfig();
+    }
 
-                m_driver
-                                .rightTrigger()
-                                .whileTrue(BaseCommands.outCoral(outtake));
+    @SuppressWarnings("unused")
+    private void doubleDriverConfig() {
 
-                m_driver
-                                .start()
-                                .onTrue(new InstantCommand(() -> drive.resetYaw(), drive));
+        // Default command, normal field-relative drive
+        drive.setDefaultCommand(
+                DriveCommands.joystickDrive(
+                        drive,
+                        () -> -m_driver.getLeftY(),
+                        () -> -m_driver.getLeftX(),
+                        () -> -m_driver.getRightX()));
 
-                // Set Selected Auto Align Position
-                m_operator
-                                .povUp()
-                                .onTrue(new InstantCommand(() -> {
-                                        RobotState.setSelectedPosition(Position.MIDDLE);
-                                        RobotState.setSelectedElevatorHeight(Height.ALGEA_HIGH);
+        m_driver
+                .leftBumper()
+                .whileTrue(
+                        Commands.sequence(
+                                new InstantCommand(() -> RobotState.setMode(OperationMode.AUTO)),
+                                new DriveToPose(
+                                        drive,
+                                        () -> TargetSelector.getNearestBranch(RobotState.getSelectedPosition()))))
+                .onFalse(new InstantCommand(() -> RobotState.setMode(OperationMode.HUMAN)));
+
+        m_driver.rightBumper().whileTrue(BaseCommands.outCoral(outtake));
+
+        m_driver.rightTrigger().whileTrue(BaseCommands.autoElevator(elevator));
+
+        m_driver.start().onTrue(new InstantCommand(() -> drive.resetYaw(), drive));
+
+        // Set Selected Auto Align Position
+        m_operator
+                .povUp()
+                .onTrue(
+                        new InstantCommand(
+                                () -> {
+                                    RobotState.setSelectedPosition(Position.MIDDLE);
+                                    RobotState.setSelectedElevatorHeight(Height.ALGEA_HIGH);
                                 }));
 
-                m_operator
-                                .povDown()
-                                .onTrue(new InstantCommand(() -> {
-                                        RobotState.setSelectedPosition(Position.MIDDLE);
-                                        RobotState.setSelectedElevatorHeight(Height.ALGEA_LOW);
+        m_operator
+                .povDown()
+                .onTrue(
+                        new InstantCommand(
+                                () -> {
+                                    RobotState.setSelectedPosition(Position.MIDDLE);
+                                    RobotState.setSelectedElevatorHeight(Height.ALGEA_LOW);
                                 }));
 
-                m_operator
-                                .povLeft()
-                                .onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.LEFT)));
+        m_operator
+                .povLeft()
+                .onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.LEFT)));
 
-                m_operator
-                                .povRight()
-                                .onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.RIGHT)));
+        m_operator
+                .povRight()
+                .onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.RIGHT)));
 
-                // Set Selected Elevator Height
-                m_operator
-                                .cross()
-                                .onTrue(new InstantCommand(() -> RobotState.setSelectedElevatorHeight(Height.ZERO)));
+        // Set Selected Elevator Height
+        m_operator.cross().whileTrue(BaseCommands.homeElevator(elevator, outtake));
 
-                m_operator
-                                .square()
-                                .onTrue(new InstantCommand(() -> RobotState.setSelectedElevatorHeight(Height.L2)));
+        m_operator
+                .square()
+                .onTrue(new InstantCommand(() -> RobotState.setSelectedElevatorHeight(Height.L2)));
 
-                m_operator
-                                .circle()
-                                .onTrue(new InstantCommand(() -> RobotState.setSelectedElevatorHeight(Height.L3)));
+        m_operator
+                .circle()
+                .onTrue(new InstantCommand(() -> RobotState.setSelectedElevatorHeight(Height.L3)));
 
-                m_operator
-                                .triangle()
-                                .onTrue(new InstantCommand(() -> RobotState.setSelectedElevatorHeight(Height.L4)));
+        m_operator
+                .triangle()
+                .onTrue(new InstantCommand(() -> RobotState.setSelectedElevatorHeight(Height.L4)));
 
-                // Intake/Outtake Object
-                m_operator
-                                .L1()
-                                .whileTrue(BaseCommands.intakeCoral(outtake));
+        // Intake/Outtake Object
+        m_operator.L1().whileTrue(BaseCommands.intakeCoral(outtake));
 
-                m_operator
-                                .R1()
-                                .whileTrue(BaseCommands.outAlgea(outtake));
+        m_operator.R1().whileTrue(BaseCommands.outAlgea(outtake));
 
-                // Reset Elevator
-                m_operator
-                                .options()
-                                .onTrue(new InstantCommand(() -> elevator.resetEncoders(), elevator));
-        }
+        m_operator.touchpad().whileTrue(BaseCommands.intakeAlgea(outtake));
 
-        @SuppressWarnings("unused")
-        private void singleDriverConfig() {
-                // Default command, normal field-relative drive
-                drive.setDefaultCommand(
-                                DriveCommands.joystickDrive(
-                                                drive,
-                                                () -> -m_operator.getLeftY(),
-                                                () -> -m_operator.getLeftX(),
-                                                () -> -m_operator.getRightX()));
+        // Reset Elevator
+        m_operator.options().onTrue(new InstantCommand(() -> elevator.resetEncoders(), elevator));
+    }
 
-                // Reset the gyro and encoders
+    @SuppressWarnings("unused")
+    private void singleDriverConfig() {
+        // Default command, normal field-relative drive
+        drive.setDefaultCommand(
+                DriveCommands.joystickDrive(
+                        drive,
+                        () -> -m_operator.getLeftY(),
+                        () -> -m_operator.getLeftX(),
+                        () -> -m_operator.getRightX()));
 
-                m_operator.L3().onTrue(new InstantCommand(() -> elevator.resetEncoders(), elevator));
+        // Reset the gyro and encoders
 
-                m_operator.options().onTrue(new InstantCommand(() -> drive.resetYaw(), drive));
+        m_operator.L3().onTrue(new InstantCommand(() -> elevator.resetEncoders(), elevator));
 
-                // Intake/ outtake control
+        m_operator.options().onTrue(new InstantCommand(() -> drive.resetYaw(), drive));
 
-                m_operator.L1().whileTrue(BaseCommands.intakeCoral(outtake));
+        // Intake/ outtake control
 
-                m_operator.R1().whileTrue(BaseCommands.outCoral(outtake));
+        m_operator.L1().whileTrue(BaseCommands.intakeCoral(outtake));
 
-                m_operator.touchpad().whileTrue(BaseCommands.intakeAlgea(outtake));
+        m_operator.R1().whileTrue(BaseCommands.outCoral(outtake));
 
-                m_operator.R2().whileTrue(BaseCommands.outAlgea(outtake));
+        m_operator.touchpad().whileTrue(BaseCommands.intakeAlgea(outtake));
 
-                // Set the elevator height based on the cross, circle, and triangle buttons
-                m_operator
-                                .cross()
-                                .whileTrue(BaseCommands.homeElevator(elevator, outtake))
-                                .onFalse(new InstantCommand(() -> elevator.stop(), elevator));
+        m_operator.R2().whileTrue(BaseCommands.outAlgea(outtake));
 
-                m_operator
-                                .square()
-                                .whileTrue(BaseCommands.setHeight(elevator, outtake, Height.L2))
-                                .onFalse(BaseCommands.setPivot(outtake, 0));
+        // Set the elevator height based on the cross, circle, and triangle buttons
+        m_operator
+                .cross()
+                .whileTrue(BaseCommands.homeElevator(elevator, outtake))
+                .onFalse(new InstantCommand(() -> elevator.stop(), elevator));
 
-                m_operator
-                                .circle()
-                                .whileTrue(BaseCommands.setHeight(elevator, outtake, Height.L3))
-                                .onFalse(BaseCommands.setPivot(outtake, 0));
+        m_operator
+                .square()
+                .whileTrue(BaseCommands.setHeight(elevator, outtake, Height.L2))
+                .onFalse(BaseCommands.setPivot(outtake, 0));
 
-                m_operator
-                                .triangle()
-                                .whileTrue(BaseCommands.setHeight(elevator, outtake, Height.L4))
-                                .onFalse(BaseCommands.setPivot(outtake, 0));
+        m_operator
+                .circle()
+                .whileTrue(BaseCommands.setHeight(elevator, outtake, Height.L3))
+                .onFalse(BaseCommands.setPivot(outtake, 0));
 
-                // Set the selected position based on the D-Pad
-                m_operator
-                                .povUp()
-                                .onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.MIDDLE)));
-                m_operator
-                                .povLeft()
-                                .onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.LEFT)));
-                m_operator
-                                .povRight()
-                                .onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.RIGHT)));
+        m_operator
+                .triangle()
+                .whileTrue(BaseCommands.setHeight(elevator, outtake, Height.L4))
+                .onFalse(BaseCommands.setPivot(outtake, 0));
 
-                // Auto-align
-                m_operator
-                                .L2()
-                                .whileTrue(
-                                                Commands.sequence(
-                                                                new InstantCommand(() -> RobotState
-                                                                                .setMode(OperationMode.AUTO)),
-                                                                new AutoAlign(drive)))
-                                .onFalse(new InstantCommand(() -> RobotState.setMode(OperationMode.HUMAN)));
-        }
+        // Set the selected position based on the D-Pad
+        m_operator
+                .povUp()
+                .onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.MIDDLE)));
+        m_operator.L3().onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.LEFT)));
+        m_operator
+                .R3()
+                .onTrue(new InstantCommand(() -> RobotState.setSelectedPosition(Position.RIGHT)));
 
-        /**
-         * Use this to pass the autonomous command to the main {@link Robot} class.
-         *
-         * @return the command to run in autonomous
-         */
-        public Command getAutonomousCommand() {
-                return autoChooser.get();
-        }
+        // Auto-align
+        m_operator
+                .L2()
+                .whileTrue(
+                        Commands.sequence(
+                                new InstantCommand(() -> RobotState.setMode(OperationMode.AUTO)),
+                                new DriveToPose(
+                                        drive,
+                                        () -> TargetSelector.getNearestBranch(RobotState.getSelectedPosition()))))
+                .onFalse(new InstantCommand(() -> RobotState.setMode(OperationMode.HUMAN)));
+    }
+
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        return autoChooser.get();
+    }
 }

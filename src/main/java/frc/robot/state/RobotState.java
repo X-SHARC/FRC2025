@@ -10,8 +10,7 @@ public class RobotState {
 
   private static RobotState instance;
 
-  private RobotState() {
-  }
+  private RobotState() {}
 
   private static OperationMode currentMode = OperationMode.HUMAN;
   private static GameObject currentGameObject = GameObject.NONE;
@@ -65,7 +64,7 @@ public class RobotState {
 
   @AutoLogOutput(key = "RobotState/ElevatorHeightSpeedMultiplier")
   public static double getSpeedMultiplier() {
-    return (1 - elevatorHeight);
+    return (1 - elevatorHeight * 1.2) > 0 ? (1 - elevatorHeight * 1.1) : 0.1;
   }
 
   @AutoLogOutput(key = "RobotState/SelectedElevatorHeight")
