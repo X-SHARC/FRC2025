@@ -53,6 +53,10 @@ public interface OuttakeIO {
    */
   public default void setOuttakeVoltage(double voltage) {}
 
+  public default boolean hasAlgea() {
+    return false;
+  }
+
   /**
    * Gets the current position of the pivot motor.
    *

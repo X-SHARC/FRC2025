@@ -4,8 +4,6 @@
 
 package frc.robot.commands;
 
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -18,21 +16,20 @@ import frc.robot.util.Enums.Height;
 /** Add your docs here. */
 public class AutonomousCommands {
 
-    private static Command autonomousElevator(Elevator elevator, Height height, BooleanSupplier endCondition) {
-        double meters = Constants.FieldConstants.heightMap.get(height).doubleValue();
-        return new FunctionalCommand(
-                () -> {
-                },
-                () -> elevator.setHeight(meters),
-                interrupted -> {
-                },
-                endCondition,
-                elevator);
-    }
+  private static Command autonomousElevator(Elevator elevator, Height height) {
+    double meters = Constants.FieldConstants.heightMap.get(height).doubleValue();
+    return new FunctionalCommand(
+        () -> {},
+        () -> elevator.setHeight(meters),
+        interrupted -> {},
+        () -> !RobotState.hasObject() || elevator.isAtSetpoint(),
+        elevator);
+  }
 
-    public static Command autonomousHeight(Elevator elevator, Outtake outtake, Height height) {
-        return Commands.sequence(BaseCommands.setPivot(outtake, 5),
-                autonomousElevator(elevator, height, () -> elevator.isAtSetpoint() || !outtake.isBeamBreakTriggered()),
-                BaseCommands.setPivot(outtake, 0));
-    }
+  public static Command autonomousHeight(Elevator elevator, Outtake outtake, Height height) {
+    return Commands.sequence(
+        BaseCommands.setPivot(outtake, 5),
+        autonomousElevator(elevator, height),
+        BaseCommands.setPivot(outtake, 0));
+  }
 }

@@ -3,7 +3,7 @@ package frc.robot.subsystems.outtake;
 public class OuttakeConstants {
   public static final int pivotMotor = 16;
   public static final int outtakeMotor = 15;
-  public static final int beamBreakPort = 1;
+  public static final int beamBreakPort = 8;
 
   public static final double kGearRatio = 48;
 

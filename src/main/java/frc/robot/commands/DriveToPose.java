@@ -15,6 +15,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.state.RobotState;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.Enums.OperationMode;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
@@ -224,6 +225,7 @@ public class DriveToPose extends Command {
   public void end(boolean interrupted) {
     drive.stop();
     running = false;
+    RobotState.setMode(OperationMode.HUMAN);
     // Clear logs
     Logger.recordOutput("DriveToPose/Setpoint", new Pose2d[] {});
     Logger.recordOutput("DriveToPose/Goal", new Pose2d[] {});

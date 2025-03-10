@@ -49,8 +49,8 @@ public final class Constants {
         new PathConstraints(3, 3, Units.degreesToRadians(360), Units.degreesToRadians(720), 12);
   }
 
-  public static final double speedMultiplier = 0.4;
-  public static final boolean tuningMode = true;
+  public static final double speedMultiplier = 0.5;
+  public static final boolean tuningMode = false;
 
   public static final class FieldConstants {
 

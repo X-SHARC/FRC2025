@@ -36,6 +36,7 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
   // Digital input for beam break sensor
   private final DigitalInput beamBreak;
+  private final DigitalInput limitSwitch;
   private double setpoint = 0;
 
   // Voltage control requests
@@ -64,6 +65,8 @@ public class OuttakeIOTalonFX implements OuttakeIO {
 
     // Initialize beam break sensor
     this.beamBreak = new DigitalInput(OuttakeConstants.beamBreakPort);
+
+    this.limitSwitch = new DigitalInput(5);
 
     // Configure pivot motor
     TalonFXConfiguration pivotConfig = new TalonFXConfiguration();
@@ -176,6 +179,11 @@ public class OuttakeIOTalonFX implements OuttakeIO {
   @Override
   public double getPivotPosition() {
     return Units.radiansToDegrees(pivotPosition.getValueAsDouble() / (OuttakeConstants.kGearRatio));
+  }
+
+  @Override
+  public boolean hasAlgea() {
+    return limitSwitch.get();
   }
 
   /**

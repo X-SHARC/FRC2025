@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -70,12 +71,12 @@ public class RobotContainer {
     @SuppressWarnings("unused")
     private final Vision vision;
 
-    @SuppressWarnings("unused")
-    private final Leds leds = Leds.getInstance();
-
     private final Elevator elevator;
 
     private final Outtake outtake;
+
+    @SuppressWarnings("unused")
+    private final Leds leds = Leds.getInstance();
 
     // Controller
     private final CommandXboxController m_driver = new CommandXboxController(0);
@@ -278,6 +279,11 @@ public class RobotContainer {
         m_operator.L1().whileTrue(BaseCommands.intakeCoral(outtake));
 
         m_operator.R1().whileTrue(BaseCommands.outAlgea(outtake));
+
+        m_operator
+                .R2()
+                .whileTrue(new RunCommand(() -> outtake.setOuttakeVoltage(3), outtake))
+                .onFalse(new InstantCommand(() -> outtake.stop(), outtake));
 
         m_operator.touchpad().whileTrue(BaseCommands.intakeAlgea(outtake));
 

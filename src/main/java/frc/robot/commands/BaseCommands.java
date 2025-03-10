@@ -80,7 +80,7 @@ public class BaseCommands {
   }
 
   public static Command intakeCoral(Outtake outtake) {
-    return manipulateObject(outtake, 10, 12, outtake::isBeamBreakTriggered);
+    return manipulateObject(outtake, 5, 12, outtake::isBeamBreakTriggered);
   }
 
   public static Command intakeAlgea(Outtake outtake) {

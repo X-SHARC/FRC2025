@@ -41,10 +41,13 @@ public class Outtake extends SubsystemBase {
     disconnectedAlerts[1].set(!inputs.outtakeMotorConnected);
 
     Logger.recordOutput("Outtake/beamBreak", io.isBeamBreakTriggered());
+    Logger.recordOutput("Outtake/limitSwitch", io.hasAlgea());
 
-    // TODO: add logic to set with limit switch for algea
     if (io.isBeamBreakTriggered()) {
       RobotState.setGameObject(GameObject.CORAL);
+    } else if (io.hasAlgea()) {
+      RobotState.setGameObject(GameObject.ALGEA);
+      io.setOuttakeVoltage(5);
     } else {
       RobotState.setGameObject(GameObject.NONE);
     }

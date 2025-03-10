@@ -46,14 +46,14 @@ public class Leds extends VirtualSubsystem {
 
   // Constants
   private static final int minLoopCycleCount = 10;
-  private static final int length = 50;
+  private static final int length = 24;
   private static final double breathDuration = 1.0;
   private static final double waveExponent = 0.4;
   private static final double waveFastCycleLength = 25.0;
-  private static final double waveFastDuration = 0.25;
+  private static final double waveFastDuration = 0.5;
 
   private Leds() {
-    leds = new AddressableLED(1);
+    leds = new AddressableLED(5);
     buffer = new AddressableLEDBuffer(length);
     leds.setLength(length);
     leds.setData(buffer);
@@ -99,12 +99,12 @@ public class Leds extends VirtualSubsystem {
     loadingNotifier.stop();
 
     // Select LED mode
-    wave(Color.kGreen, Color.kBlack, waveFastCycleLength, waveFastDuration);
+
+    wave(Color.kDarkGreen, Color.kBlack, waveFastCycleLength, waveFastDuration);
     if (DriverStation.isEnabled()) {
       if (RobotState.isAuto()) {
         blink(Color.kRed, Color.kDarkBlue, 0.1); // çakar
-      }
-      if (RobotState.getGameObject() == GameObject.CORAL) {
+      } else if (RobotState.getGameObject() == GameObject.CORAL) {
         solid(coralColor);
       } else if (RobotState.getGameObject() == GameObject.ALGEA) {
         solid(algeaColor);

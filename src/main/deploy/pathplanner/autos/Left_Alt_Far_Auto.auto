@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Part 1"
+            "pathName": "Inverted Alt_Far_Part1"
           }
         },
         {
@@ -29,7 +29,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Part 2"
+                  "pathName": "Inverted Far_Part2"
                 }
               },
               {
@@ -54,7 +54,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.0
+                  "waitTime": 1.5
                 }
               }
             ]
@@ -65,15 +65,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "CoralIn"
+                  "pathName": "Inverted Far_Part3"
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Part 3"
+                  "name": "CoralIn"
                 }
               }
             ]
@@ -98,7 +98,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Part 4"
+                  "pathName": "Inverted Far_Part4"
                 }
               },
               {
@@ -123,7 +123,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.0
+                  "waitTime": 1.5
                 }
               }
             ]
@@ -134,15 +134,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "CoralIn"
+                  "pathName": "Inverted Far_Part5"
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Part 5"
+                  "name": "CoralIn"
                 }
               }
             ]
